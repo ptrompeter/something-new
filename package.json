@@ -1,0 +1,28 @@
+{
+  "name": "something-new",
+  "version": "1.0.0",
+  "description": "An app that returns new restaurants in the seattle area.",
+  "main": "app.js",
+  "dependencies": {
+    "express": "^4.17.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://ptrompeter@github.com/ptrompeter/something-new.git"
+  },
+  "keywords": [
+    "node",
+    "javascript"
+  ],
+  "author": "Patrick Trompeter",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ptrompeter/something-new/issues"
+  },
+  "homepage": "https://github.com/ptrompeter/something-new#readme"
+}
