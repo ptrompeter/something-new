@@ -26,8 +26,15 @@ app.listen(port, (err) => {
 });
 
 async function newTest(){
-  const response = await oHandler.get().query({$top: 3})
-  return response;
+  try {
+    const response = await oHandler.get('naics_code').query({$top: 3})
+    return response;
+  } catch(err) {
+    console.log("Promise returned error.");
+    console.log(err);
+    return err;
+  }
+
 }
 // async function getRestaurants(){
 //   // const response = await o(endpoint).get("OData.svc").query({$filter: `naics_code eq "722513"`});
