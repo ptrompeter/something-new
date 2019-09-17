@@ -9,7 +9,7 @@ const odata = require('odata');
 //relevant naics codes: "722513", "722511"
 const oHandler = odata.o("https://data.seattle.gov/api/odata/v4/wnbq-64tb", {
   headers: {
-    'If-Match': '*'
+    // 'If-Match': '*'
   }
 });
 
@@ -27,8 +27,12 @@ app.listen(port, (err) => {
 
 async function newTest(){
   try {
+    // const response = await oHandler.get().query({$filter: "naics_code eq 722513"});
+    // const response = await oHandler.get().query({$filter: `naics_code%20eq%20'722513'%20or%20naics_code%20eq%20'722511'`});
     // const response = await oHandler.get().query({$filter: `naics_code eq '722513'`});
-    const response = await oHandler.get().query({$top: 3});
+    // const response = await oHandler.get().query({$filter: `contains(naics_description, 'Restaurant')`});
+    const response = await oHandler.get().query({$filter: `zip eq 98117`});
+    // const response = await oHandler.get().query({$top: 3});
 
     console.log(response);
     return response;
