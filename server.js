@@ -27,7 +27,9 @@ app.listen(port, (err) => {
 
 async function newTest(){
   try {
-    const response = await oHandler.get().query();
+    // const response = await oHandler.get().query({$filter: `naics_code eq '722513'`});
+    const response = await oHandler.get().query({$top: 3});
+
     console.log(response);
     return response;
   } catch(err) {
@@ -42,3 +44,4 @@ async function newTest(){
 //   const response = await o(endpoint).get("OData.svc").query({$top: 3});
 //   return response;
 // }
+newTest();
