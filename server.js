@@ -7,7 +7,7 @@ const odata = require('odata');
 //Odata v2 endpoint: https://data.seattle.gov/OData.svc/wnbq-64tb
 //Odata v4 endpoint: https://data.seattle.gov/api/odata/v4/wnbq-64tb
 //relevant naics codes: "722513", "722511"
-const oHandler = odata.o("https://data.seattle.gov/OData.svc/wnbq-64tb", {
+const oHandler = odata.o("https://data.seattle.gov/api/odata/v4/wnbq-64tb", {
   headers: {
     'If-Match': '*'
   }
@@ -27,7 +27,8 @@ app.listen(port, (err) => {
 
 async function newTest(){
   try {
-    const response = await oHandler.get('naics_code').query({$top: 3})
+    const response = await oHandler.get().query();
+    console.log(response);
     return response;
   } catch(err) {
     console.log("Promise returned error.");
