@@ -4,7 +4,8 @@
   "description": "An app that returns new restaurants in the seattle area.",
   "main": "app.js",
   "dependencies": {
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "odata": "^1.0.2"
   },
   "devDependencies": {},
   "scripts": {
