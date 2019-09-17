@@ -29,10 +29,12 @@ async function newTest(){
   try {
     // const response = await oHandler.get().query({$filter: "naics_code eq 722513"});
     // const response = await oHandler.get().query({$filter: `naics_code%20eq%20'722513'%20or%20naics_code%20eq%20'722511'`});
+    // const response = await oHandler.get().query({$filter: "naics_code eq '722513'"});
     // const response = await oHandler.get().query({$filter: `naics_code eq '722513'`});
     // const response = await oHandler.get().query({$filter: `contains(naics_description, 'Restaurant')`});
-    const response = await oHandler.get().query({$filter: `zip eq 98117`});
-    // const response = await oHandler.get().query({$top: 3});
+    // const response = await oHandler.get().query({$filter: `zip eq 98117`});
+    // const response = await oHandler.get().query({$filter: `zip eq '98117'`});
+    const response = await oHandler.get().query({$top: 3});
 
     console.log(response);
     return response;
