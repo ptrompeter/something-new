@@ -9,6 +9,7 @@ const serverPort = process.env.DEV_PORT;
 //event listeners
 zipForm.submit(async function (event) {
   event.preventDefault();
+  console.log("preventDefault ran.")
   console.log("zip code:", zipBox[0].value);
   console.log(event);
   let result = await $.get()

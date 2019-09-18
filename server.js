@@ -58,10 +58,25 @@ app.listen(port, (err) => {
 async function getData(){
   try {
     const response = await oHandler.get().query();
+    console.log("Response full length:", response.length);
+    console.log("milliseconds in a year:", 86400000 * 365)
     // const data = JSON.parse(response);
     const filteredArray = response.filter(item => item.naics_code == '722513' || item.naics_code == '722511');
-    console.log(filteredArray);
-    return filteredArray;
+    // console.log(filteredArray[0].license_start_date);
+    let sampleDate = new Date(filteredArray[0].license_start_date);
+    // console.log("sampleDate.getTime() output:", sampleDate.getTime());
+    let now = new Date();
+    // console.log("now:", now.getTime());
+    // console.log("difference", now.getTime() - sampleDate.getTime())
+    // console.log("less than a year?", (now.getTime() - sampleDate.getTime() < 86400000 * 365))
+     let timeFilter = filteredArray.filter(function(item){
+       let startDate = new Date(item.license_start_date);
+       let now = new Date();
+       return (now.getTime() - startDate.getTime() < 86400000 * 365) ? true : false;
+     });
+     console.log("timeFilter's length:", timeFilter.length);
+    // console.log(filteredArray);
+    return timeFilter;
   } catch(err){
     console.log(err);
   }
@@ -69,6 +84,7 @@ async function getData(){
 
 async function filterData(){
   const data = await getData();
+  console.log(data);
   return data
 }
 
@@ -98,4 +114,5 @@ async function newTest(){
 //   return response;
 // }
 // newTest();
-getData();
+// getData();
+filterData();

@@ -1,7 +1,5 @@
 "use strict"
 
-require('dotenv').config();
-
 const zipForm = $("#zip-form")
 const zipBox = $("#zip")
 const display = $("#display-box")
