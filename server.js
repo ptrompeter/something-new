@@ -1,7 +1,11 @@
 const express = require('express');
 const app = express();
-const port = 3000;
 const odata = require('odata');
+const dotenv = require('dotenv');
+dotenv.config();
+console.log(`Your port is ${process.env.DEV_PORT}`); // 8626
+const port = process.env.DEV_PORT;
+
 
 //API endpoint: https://data.seattle.gov/resource/wnbq-64tb.json
 //Odata v2 endpoint: https://data.seattle.gov/OData.svc/wnbq-64tb
@@ -14,7 +18,7 @@ const oHandler = odata.o("https://data.seattle.gov/api/odata/v4/wnbq-64tb", {
 });
 
 app.get('/', (request, response) => {
-  response.send(newTest())
+  response.send(filterData())
 });
 
 app.listen(port, (err) => {
@@ -24,6 +28,23 @@ app.listen(port, (err) => {
 
   console.log(`server is listening on ${port}`)
 });
+
+async function getData(){
+  try {
+    const response = await oHandler.get().query();
+    // const data = JSON.parse(response);
+    const filteredArray = response.filter(item => item.naics_code == '722513' || item.naics_code == '722511');
+    console.log(filteredArray);
+    return filteredArray;
+  } catch(err){
+    console.log(err);
+  }
+}
+
+async function filterData(){
+  const data = await getData();
+  return data
+}
 
 async function newTest(){
   try {
@@ -50,4 +71,5 @@ async function newTest(){
 //   const response = await o(endpoint).get("OData.svc").query({$top: 3});
 //   return response;
 // }
-newTest();
+// newTest();
+getData();
