@@ -2,9 +2,35 @@ const express = require('express');
 const app = express();
 const odata = require('odata');
 const dotenv = require('dotenv');
+const path = require('path');
+const router = express.Router();
 dotenv.config();
-console.log(`Your port is ${process.env.DEV_PORT}`); // 8626
+console.log(`Your port is ${process.env.DEV_PORT}`);
 const port = process.env.DEV_PORT;
+
+
+router.get('/',function(req,res){
+  res.sendFile(path.join(__dirname+'/index.html'));
+  //__dirname : It will resolve to your project folder.
+});
+
+// router.get('/about',function(req,res){
+//   res.sendFile(path.join(__dirname+'/about.html'));
+// });
+//
+// router.get('/sitemap',function(req,res){
+//   res.sendFile(path.join(__dirname+'/sitemap.html'));
+// });
+
+//add the router
+app.use(express.static(__dirname + '/View'));
+//Store all HTML files in view folder.
+app.use(express.static(__dirname + '/Script'));
+//Store all JS and CSS in Scripts folder.
+
+app.use('/', router);
+// app.listen(process.env.port || 3000);
+
 
 
 //API endpoint: https://data.seattle.gov/resource/wnbq-64tb.json
@@ -17,9 +43,9 @@ const oHandler = odata.o("https://data.seattle.gov/api/odata/v4/wnbq-64tb", {
   }
 });
 
-app.get('/', (request, response) => {
-  response.send(filterData())
-});
+// app.get('/', (request, response) => {
+//   response.send(filterData())
+// });
 
 app.listen(port, (err) => {
   if (err) {

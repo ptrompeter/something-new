@@ -1,8 +1,11 @@
 "use strict"
 
+require('dotenv').config();
+
 const zipForm = $("#zip-form")
 const zipBox = $("#zip")
 const display = $("#display-box")
+const serverPort = process.env.DEV_PORT;
 //event listeners
 zipForm.submit(async function (event) {
   event.preventDefault();
