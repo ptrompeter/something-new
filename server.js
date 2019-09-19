@@ -9,10 +9,17 @@ console.log(`Your port is ${process.env.DEV_PORT}`);
 const port = process.env.DEV_PORT;
 
 
-router.get('/',function(req,res){
+router.get('/', function(req,res){
   res.sendFile(path.join(__dirname+'/index.html'));
   //__dirname : It will resolve to your project folder.
 });
+
+app.get('/zip', async function(req,res){
+  console.log("req:", req);
+  console.log("res", res);
+  const allNewRestaurants = await getData();
+  res.render(allNewRestaurants);
+})
 
 // router.get('/about',function(req,res){
 //   res.sendFile(path.join(__dirname+'/about.html'));
