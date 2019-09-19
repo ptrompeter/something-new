@@ -15,10 +15,11 @@ router.get('/', function(req,res){
 });
 
 app.get('/zip', async function(req,res){
+  console.log('Hit /zip route.')
   console.log("req:", req);
   console.log("res", res);
   const allNewRestaurants = await getData();
-  res.render(allNewRestaurants);
+  res.send(allNewRestaurants);
 })
 
 // router.get('/about',function(req,res){
