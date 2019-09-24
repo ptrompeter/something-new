@@ -14,7 +14,7 @@ async function getZipList(zip) {
 }
 //event listeners
 zipForm.submit(async function (event) {
-  event.preventDefault();
+  // event.preventDefault();
   console.log("zip code:", zipBox[0].value);
   console.log(event);
   if (zipBox[0].value) return getZipList(zipBox[0].value);

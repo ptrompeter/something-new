@@ -14,12 +14,30 @@ router.get('/', function(req,res){
   //__dirname : It will resolve to your project folder.
 });
 
+//Return a list of restaurants filtered by zipcode.
+//Refactor to pull all filtering into a separate file.
+
 app.get('/zip', async function(req,res){
   console.log('Hit /zip route.')
   console.log("req:", req);
-  console.log("res", res);
+  // console.log("res", res);
   const allNewRestaurants = await getData();
-  res.send(allNewRestaurants);
+  console.log(allNewRestaurants);
+  let zip = false;
+  let zipRestaurants = false;
+  if (req.query.zipbox) zip = req.query.zipbox;
+  if (zip) {
+    zipRestaurants = allNewRestaurants.filter(function(item) {
+      console.log("I don't know when this fires.")
+      zip === item.zip.slice(0,5)});
+  }
+  if (zipRestaurants) {
+    res.send(zipRestaurants);
+  } else {
+    res.send("enter a 5 digit zipcode.")
+  }
+  // console.log("req.query:", req.query);
+  // res.send(allNewRestaurants);
 })
 
 // router.get('/about',function(req,res){
@@ -44,7 +62,10 @@ app.use('/', router);
 //API endpoint: https://data.seattle.gov/resource/wnbq-64tb.json
 //Odata v2 endpoint: https://data.seattle.gov/OData.svc/wnbq-64tb
 //Odata v4 endpoint: https://data.seattle.gov/api/odata/v4/wnbq-64tb
-//relevant naics codes: "722513", "722511"
+//relevant naics codes: "722513", "722511", "722330" (food trucks - location may be unreliable)
+
+//SAMPLE FUNCTIONING SODE REQUEST FOR FOOD TRUCKS IN SEATTLE OPENED WITHIN THE LAST YEAR:
+//https://data.seattle.gov/resource/wnbq-64tb.json?naics_code=722330&city_state_zip=SEATTLE&$where=license_start_date>'2018-09-24T16:00:00'
 const oHandler = odata.o("https://data.seattle.gov/api/odata/v4/wnbq-64tb", {
   headers: {
     // 'If-Match': '*'
@@ -71,9 +92,9 @@ async function getData(){
     // const data = JSON.parse(response);
     const filteredArray = response.filter(item => item.naics_code == '722513' || item.naics_code == '722511');
     // console.log(filteredArray[0].license_start_date);
-    let sampleDate = new Date(filteredArray[0].license_start_date);
+    // let sampleDate = new Date(filteredArray[0].license_start_date);
     // console.log("sampleDate.getTime() output:", sampleDate.getTime());
-    let now = new Date();
+    // let now = new Date();
     // console.log("now:", now.getTime());
     // console.log("difference", now.getTime() - sampleDate.getTime())
     // console.log("less than a year?", (now.getTime() - sampleDate.getTime() < 86400000 * 365))
@@ -100,12 +121,12 @@ async function newTest(){
   try {
     // const response = await oHandler.get().query({$filter: "naics_code eq 722513"});
     // const response = await oHandler.get().query({$filter: `naics_code%20eq%20'722513'%20or%20naics_code%20eq%20'722511'`});
-    // const response = await oHandler.get().query({$filter: "naics_code eq '722513'"});
+    const response = await oHandler.get().query({$filter: "naics_code eq '722513'"});
     // const response = await oHandler.get().query({$filter: `naics_code eq '722513'`});
     // const response = await oHandler.get().query({$filter: `contains(naics_description, 'Restaurant')`});
     // const response = await oHandler.get().query({$filter: `zip eq 98117`});
     // const response = await oHandler.get().query({$filter: `zip eq '98117'`});
-    const response = await oHandler.get().query({$top: 3});
+    // const response = await oHandler.get().query({$top: 3});
 
     console.log(response);
     return response;
@@ -121,6 +142,6 @@ async function newTest(){
 //   const response = await o(endpoint).get("OData.svc").query({$top: 3});
 //   return response;
 // }
-// newTest();
+newTest();
 // getData();
-filterData();
+// filterData();
