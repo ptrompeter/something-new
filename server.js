@@ -112,21 +112,44 @@ async function getData(){
 }
 
 async function sodaCall(zipcode=false) {
+  let newInit = {};
+  let headers = {};
+  headers['Accept-Encoding'] = 'gzip'
+  newInit.method = 'GET';
+  newInit.mode = 'cors';
+  newInit.credentials = 'include';
+  newInit.redirect = 'follow';
+  newInit.headers = {
+    'Accept': '*/*',
+    'Accept-Encoding': 'gzip, deflate',
+    'Cache-Control': 'no-cache',
+    'Connection': 'keep-alive',
+    'Host': 'data.seattle.gov',
+    'cache-control': 'no-cache',
+  }
   let url = "https://data.seattle.gov/resource/wnbq-64tb.json";
   let naics = "?$where=(naics_code == '722513' OR naics_code == '722530' OR naics_code == '722511')";
   let time = new Date();
-  console.log("now:", time)
-  console.log("month", time.getMonth())
+  // console.log("now:", time)
+  // console.log("month", time.getMonth())
   time.setMonth(time.getMonth() - 12);
-  console.log("target time:", time);
+  // console.log("target time:", time);
   let zip = zipcode;
   url += naics;
   url += ` AND license_start_date>'${time.toISOString().slice(0, time.toISOString().length -1)}'`;
   if (zip) url += ` AND zip == '${zip}'`;
-  console.log(url);
-  let response = await fetch(url);
-  console.log("response: ", response);
-  console.log("length: ", response.length);
+  console.log("url", url);
+  let response = await fetch(url, newInit);
+  // console.log("response: ", response);
+  // console.log(typeof response);
+  // console.log(Object.keys(response));
+  // console.log("size: ", response.size);
+  // console.log("timeout: ", response.timeout);
+  // console.log("length: ", response.length);
+  // console.log("body: ", response.body);
+  let parsedRes = await response.json();
+  console.log("parsedRes", parsedRes);
+  return parsedRes;
 }
 
 
@@ -168,4 +191,5 @@ async function newTest(){
 // console.log("test w/o zip");
 // sodaCall();
 console.log("test w 98101");
-sodaCall('98101');
+let test = sodaCall('98101');
+console.log("test", test);
