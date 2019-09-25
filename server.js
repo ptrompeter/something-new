@@ -111,6 +111,25 @@ async function getData(){
   }
 }
 
+async function sodaCall(zipcode=false) {
+  let url = "https://data.seattle.gov/resource/wnbq-64tb.json";
+  let naics = "?$where=(naics_code == '722513' OR naics_code == '722530' OR naics_code == '722511')";
+  let time = new Date();
+  console.log("now:", time)
+  console.log("month", time.getMonth())
+  time.setMonth(time.getMonth() - 12);
+  console.log("target time:", time);
+  let zip = zipcode;
+  url += naics;
+  url += ` AND license_start_date>'${time.toISOString().slice(0, time.toISOString().length -1)}'`;
+  if (zip) url += ` AND zip == '${zip}'`;
+  console.log(url);
+  let response = await fetch(url);
+  console.log("response: ", response);
+  console.log("length: ", response.length);
+}
+
+
 async function filterData(){
   const data = await getData();
   console.log(data);
@@ -137,11 +156,16 @@ async function newTest(){
   }
 
 }
+
 // async function getRestaurants(){
 //   // const response = await o(endpoint).get("OData.svc").query({$filter: `naics_code eq "722513"`});
 //   const response = await o(endpoint).get("OData.svc").query({$top: 3});
 //   return response;
 // }
-newTest();
+// newTest();
 // getData();
 // filterData();
+// console.log("test w/o zip");
+// sodaCall();
+console.log("test w 98101");
+sodaCall('98101');
