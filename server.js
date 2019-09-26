@@ -14,6 +14,19 @@ router.get('/', function(req,res){
   //__dirname : It will resolve to your project folder.
 });
 
+app.post('/', async function(req,res){
+  console.log('Hit /zip route.')
+  // console.log("req:", req);
+  // console.log("res", res);
+  console.log("body: ", req.body)
+  let zip = false;
+  let zipRestaurants = false;
+  if (req.query.zipbox) zip = req.query.zipbox;
+  zipRestaurants = await sodaCall(zip);
+  res.send(zipRestaurants);
+  // console.log(zipRestaurants);
+})
+
 //Return a list of restaurants filtered by zipcode.
 //Refactor to pull all filtering into a separate file.
 
@@ -21,24 +34,36 @@ app.get('/zip', async function(req,res){
   console.log('Hit /zip route.')
   console.log("req:", req);
   // console.log("res", res);
-  const allNewRestaurants = await getData();
-  console.log(allNewRestaurants);
   let zip = false;
   let zipRestaurants = false;
   if (req.query.zipbox) zip = req.query.zipbox;
-  if (zip) {
-    zipRestaurants = allNewRestaurants.filter(function(item) {
-      console.log("I don't know when this fires.")
-      zip === item.zip.slice(0,5)});
-  }
-  if (zipRestaurants) {
-    res.send(zipRestaurants);
-  } else {
-    res.send("enter a 5 digit zipcode.")
-  }
-  // console.log("req.query:", req.query);
-  // res.send(allNewRestaurants);
+  zipRestaurants = await sodaCall(zip);
+  res.send(zipRestaurants);
+  console.log(zipRestaurants);
 })
+
+// app.get('/zip', async function(req,res){
+//   console.log('Hit /zip route.')
+//   console.log("req:", req);
+//   // console.log("res", res);
+//   const allNewRestaurants = await getData();
+//   console.log(allNewRestaurants);
+//   let zip = false;
+//   let zipRestaurants = false;
+//   if (req.query.zipbox) zip = req.query.zipbox;
+//   if (zip) {
+//     zipRestaurants = allNewRestaurants.filter(function(item) {
+//       console.log("I don't know when this fires.")
+//       zip === item.zip.slice(0,5)});
+//   }
+//   if (zipRestaurants) {
+//     res.send(zipRestaurants);
+//   } else {
+//     res.send("enter a 5 digit zipcode.")
+//   }
+//   // console.log("req.query:", req.query);
+//   // res.send(allNewRestaurants);
+// })
 
 // router.get('/about',function(req,res){
 //   res.sendFile(path.join(__dirname+'/about.html'));
@@ -130,25 +155,15 @@ async function sodaCall(zipcode=false) {
   let url = "https://data.seattle.gov/resource/wnbq-64tb.json";
   let naics = "?$where=(naics_code == '722513' OR naics_code == '722530' OR naics_code == '722511')";
   let time = new Date();
-  // console.log("now:", time)
-  // console.log("month", time.getMonth())
   time.setMonth(time.getMonth() - 12);
-  // console.log("target time:", time);
   let zip = zipcode;
   url += naics;
   url += ` AND license_start_date>'${time.toISOString().slice(0, time.toISOString().length -1)}'`;
   if (zip) url += ` AND zip == '${zip}'`;
   console.log("url", url);
   let response = await fetch(url, newInit);
-  // console.log("response: ", response);
-  // console.log(typeof response);
-  // console.log(Object.keys(response));
-  // console.log("size: ", response.size);
-  // console.log("timeout: ", response.timeout);
-  // console.log("length: ", response.length);
-  // console.log("body: ", response.body);
   let parsedRes = await response.json();
-  console.log("parsedRes", parsedRes);
+  // console.log("parsedRes", parsedRes);
   return parsedRes;
 }
 
@@ -190,6 +205,6 @@ async function newTest(){
 // filterData();
 // console.log("test w/o zip");
 // sodaCall();
-console.log("test w 98101");
-let test = sodaCall('98101');
-console.log("test", test);
+// console.log("test w 98101");
+// let test = sodaCall('98101');
+// console.log("test", test);

@@ -7,15 +7,25 @@ const zipBox = $("#zip")
 const display = $("#display-box")
 
 //handler functions
-async function getZipList(zip) {
-  const response = await fetch('/zip')
+async function getZipList(zip = false) {
+  let init = {}
+  init.method = 'POST';
+  init.mode = 'same-origin';
+  init.credentials = 'same-origin';
+  init.headers = {
+    'Content-Type': 'application/json'
+  }
+  if (zip) init.body = JSON.stringify(zip);
+  const response = await fetch('/', init);
   console.log("zipList output:", response);
-  return response;
+  return response
 }
 //event listeners
 zipForm.submit(async function (event) {
-  // event.preventDefault();
+  event.preventDefault();
   console.log("zip code:", zipBox[0].value);
-  console.log(event);
-  if (zipBox[0].value) return getZipList(zipBox[0].value);
+  // console.log(event);
+  console.log("zipcode true? ", zipBox[0].value);
+  let response = (zipBox[0].value) ? await getZipList(zipBox[0].value) : await getZipList();
+  display.value = response;
 });
