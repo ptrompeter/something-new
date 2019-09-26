@@ -2,9 +2,9 @@
 
 console.log("Using app.js from script folder.")
 
-const zipForm = $("#zip-form")
-const zipBox = $("#zip")
-const display = $("#display-box")
+const zipForm = $("#zip-form");
+const zipBox = $("#zip");
+const display = $("#display-box");
 
 //handler functions
 async function getZipList(zip = false) {
@@ -29,5 +29,5 @@ zipForm.submit(async function (event) {
   // console.log(event);
   console.log("zipcode true? ", zipBox[0].value);
   let response = (zipBox[0].value) ? await getZipList(zipBox[0].value) : await getZipList();
-  display.text = response;
+  display[0].innerText = JSON.stringify(response);
 });
