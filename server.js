@@ -3,10 +3,21 @@ const app = express();
 const odata = require('odata');
 const dotenv = require('dotenv');
 const path = require('path');
+const bodyParser = require('body-parser');
+
 const router = express.Router();
 dotenv.config();
 console.log(`Your port is ${process.env.DEV_PORT}`);
 const port = process.env.DEV_PORT;
+app.use(bodyParser.json()); // support json encoded bodies
+app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
+//add the router
+app.use(express.static(__dirname + '/view'));
+//Store all HTML files in view folder.
+app.use(express.static(__dirname + '/script'));
+//Store all JS and CSS in Scripts folder.
+app.use('/', router);
+// app.listen(process.env.port || 3000);
 
 
 router.get('/', function(req,res){
@@ -18,10 +29,10 @@ app.post('/', async function(req,res){
   console.log('Hit /zip route.')
   // console.log("req:", req);
   // console.log("res", res);
-  console.log("body: ", req.body)
+  console.log("body.zip: ", req.body.zip)
   let zip = false;
   let zipRestaurants = false;
-  if (req.query.zipbox) zip = req.query.zipbox;
+  if (req.body.zip) zip = req.body.zip;
   zipRestaurants = await sodaCall(zip);
   res.send(zipRestaurants);
   // console.log(zipRestaurants);
@@ -73,14 +84,7 @@ app.get('/zip', async function(req,res){
 //   res.sendFile(path.join(__dirname+'/sitemap.html'));
 // });
 
-//add the router
-app.use(express.static(__dirname + '/view'));
-//Store all HTML files in view folder.
-app.use(express.static(__dirname + '/script'));
-//Store all JS and CSS in Scripts folder.
 
-app.use('/', router);
-// app.listen(process.env.port || 3000);
 
 
 

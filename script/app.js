@@ -15,10 +15,12 @@ async function getZipList(zip = false) {
   init.headers = {
     'Content-Type': 'application/json'
   }
-  if (zip) init.body = JSON.stringify(zip);
+  if (zip) init.body = JSON.stringify({'zip' : zip});
   const response = await fetch('/', init);
-  console.log("zipList output:", response);
-  return response
+  const parsedResponse = await response.json();
+  console.log("response: ", response);
+  console.log("parsedResponse:", parsedResponse);
+  return parsedResponse;
 }
 //event listeners
 zipForm.submit(async function (event) {
@@ -27,5 +29,5 @@ zipForm.submit(async function (event) {
   // console.log(event);
   console.log("zipcode true? ", zipBox[0].value);
   let response = (zipBox[0].value) ? await getZipList(zipBox[0].value) : await getZipList();
-  display.value = response;
+  display.text = response;
 });
