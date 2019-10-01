@@ -12,10 +12,11 @@ const odata = require('odata');
 const dotenv = require('dotenv');
 const path = require('path');
 const bodyParser = require('body-parser');
-
+const fetch = require('node-fetch');
 const router = express.Router();
 dotenv.config();
 const port = process.env.DEV_PORT;
+const geoApi = process.env.GEO_API;
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 //add the router
@@ -86,7 +87,38 @@ async function sodaCall(zipcode=false) {
   let parsedRes = await response.json();
   return parsedRes;
 }
+//
+// async function encodeAddress(address){
+//
+// }
 
+async function proveAPIWorks(){
+  let url = geoApi.replace("SEARCH_STRING", "Empire%20State%20Building");
+  console.log(typeof url);
+  let init = {};
+  console.log(url);
+  let headers = {
+    "async": true,
+    "crossDomain": true,
+    "url": url,
+    "method": "GET"
+  }
+  init.headers = headers
+  try {
+    let response = await fetch(url, init);
+    let output = await response.json();
+    console.log(output);
+  } catch(err){
+    console.log(err);
+  }
+
+//
+//   // $.ajax(settings).done(function (response) {
+//   //   console.log(response);
+//   // });
+}
+
+proveAPIWorks();
 /*
 I'm keeping my homemade filter function for now (below), in case I decide to implement
 a single daily call to the seattle API, then filter and serve requests myself.
