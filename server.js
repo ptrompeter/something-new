@@ -28,6 +28,25 @@ app.use(express.static(__dirname + '/script'));
 app.use('/', router);
 // app.listen(process.env.port || 3000);
 
+/*
+example of restaurant data (for schema formatting):
+{
+  "business_legal_name":"ABACUS HOSPITALITY LLC",
+  "trade_name":"FRESH TASTE CAFE",
+  "ownership_type":"LLC - Single Member",
+  "naics_code":"722513",
+  "naics_description":"Limited-Service Restaurants",
+  "license_start_date":"2019-06-01T00:00:00.000",
+  "street_address":"700 STEWART ST",
+  "city_state_zip":"SEATTLE",
+  "state":"WA",
+  "zip":"98101",
+  "business_phone":"360-553-3087",
+  "city_account_number":"0008291010752342",
+  "ubi":"603416636"
+}
+*/
+
 //configure db;
 mongoose.connect('mongodb://localhost/test', {useNewUrlParser: true});
 const db = mongoose.connection;
@@ -36,6 +55,28 @@ db.once('open', function(){
   console.log('hit open!  Thats good, right?');
 });
 
+//configure schema
+const Schema = mongoose.Schema;
+const restaurantSchema = new Schema({
+  business_legal_name: String,
+  trade_name: String,
+  ownership_type: String,
+  naics_code: String,
+  naics_description: String,
+  license_start_date: Date,
+  street_address: String,
+  city: String,
+  state: String,
+  zip: String,
+  business_phone: String,
+  city_account_number: String,
+  ubi: String
+});
+restaurantSchema.index({trade_name: 1, license_start_date: 1, zip: 1, ubi: 1});
+
+const Restaurant = mongoose.model('Restaurant', restaurantSchema);
+
+//consider writing a static model method to purge restaurants more than a year old.
 
 router.get('/', function(req,res){
   res.sendFile(path.join(__dirname+'/index.html'));
