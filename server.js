@@ -8,6 +8,7 @@
 
 const express = require('express');
 const app = express();
+const mongoose = require('mongoose');
 const odata = require('odata');
 const dotenv = require('dotenv');
 const path = require('path');
@@ -26,6 +27,14 @@ app.use(express.static(__dirname + '/script'));
 //Store all JS and CSS in Scripts folder.
 app.use('/', router);
 // app.listen(process.env.port || 3000);
+
+//configure db;
+mongoose.connect('mongodb://localhost/test', {useNewUrlParser: true});
+const db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'))
+db.once('open', function(){
+  console.log('hit open!  Thats good, right?');
+});
 
 
 router.get('/', function(req,res){
@@ -118,7 +127,7 @@ async function proveAPIWorks(){
 //   // });
 }
 
-proveAPIWorks();
+// proveAPIWorks();
 /*
 I'm keeping my homemade filter function for now (below), in case I decide to implement
 a single daily call to the seattle API, then filter and serve requests myself.
