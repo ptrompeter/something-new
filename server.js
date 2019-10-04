@@ -107,6 +107,20 @@ sampleRest.save(function (err) {
   if (err) return handleError(err);
 });
 
+async function getSampleOutput(query = {}){
+  let rawResponse = await Testrestaurant.find({}, function(err, restaurants) {
+    return restaurants;
+  });
+  return rawResponse;
+};
+getSampleOutput().catch(function(err){ console.log(err); });
+
+async function run() {
+  const something = await getSampleOutput();
+  console.log(something);
+};
+run();
+
 router.get('/', function(req,res){
   res.sendFile(path.join(__dirname+'/index.html'));
   //__dirname : It will resolve to your project folder.
