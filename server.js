@@ -107,6 +107,7 @@ sampleRest.save(function (err) {
   if (err) return handleError(err);
 });
 
+//Write a basic query that returns the contents of testrestaurants
 async function getSampleOutput(query = {}){
   let rawResponse = await Testrestaurant.find({}, function(err, restaurants) {
     return restaurants;
@@ -115,12 +116,25 @@ async function getSampleOutput(query = {}){
 };
 getSampleOutput().catch(function(err){ console.log(err); });
 
+//print contents of getSampleOutput to log
 async function run() {
   const something = await getSampleOutput();
   console.log(something);
 };
+
+//call the sample
 run();
 
+//empty testrestaurants
+async function removeTestRestaurants(){
+  let response = await Testrestaurant.remove({});
+  console.log("Records deleted:", response.deletedCount);
+}
+//call the cleanup function
+removeTestRestaurants();
+
+
+//ROUTES
 router.get('/', function(req,res){
   res.sendFile(path.join(__dirname+'/index.html'));
   //__dirname : It will resolve to your project folder.
