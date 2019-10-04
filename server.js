@@ -102,28 +102,42 @@ const sampleRest = new Testrestaurant({
   city_account_number:"0008291010752342",
   ubi:"603416636"
 });
-
 sampleRest.save(function (err) {
   if (err) return handleError(err);
 });
+
+//attempting batch insertion.
+const sampleDataArray = [{"business_legal_name":"ABACUS HOSPITALITY LLC","trade_name":"FRESH TASTE CAFE","ownership_type":"LLC - Single Member","naics_code":"722513","naics_description":"Limited-Service Restaurants","license_start_date":"2019-06-01T00:00:00.000","street_address":"700 STEWART ST","city_state_zip":"SEATTLE","state":"WA","zip":"98101","business_phone":"360-553-3087","city_account_number":"0008291010752342","ubi":"603416636"},{"business_legal_name":"CRAB POT RESTAURANTS INC","trade_name":"THE CRAB POT","ownership_type":"Corporation","naics_code":"722511","naics_description":"Full-Service Restaurants","license_start_date":"2019-01-01T00:00:00.000","street_address":"1301 ALASKAN WAY","city_state_zip":"SEATTLE","state":"WA","zip":"98101","business_phone":"206-623-8600","city_account_number":"0008308990745210","ubi":"6042822600010001"},{"business_legal_name":"PREMIER MEAT PIES LLC","trade_name":"PREMIER MEAT PIES LLC","ownership_type":"LLC - Multi Member","naics_code":"722513","naics_description":"Limited-Service Restaurants","license_start_date":"2018-11-01T00:00:00.000","street_address":"1001 ALASKAN WAY # 105","city_state_zip":"SEATTLE","state":"WA","zip":"98101","business_phone":"206-619-0499","city_account_number":"0007842320744027","ubi":"603512468"},{"business_legal_name":"SAI RESTAURANTS ENTERPRISE INC","trade_name":"ZAIKA RESTAURANT AND LOUNGE","ownership_type":"Corporation","naics_code":"722511","naics_description":"Full-Service Restaurants","license_start_date":"2019-09-11T00:00:00.000","street_address":"1100 PIKE ST","city_state_zip":"SEATTLE","state":"WA","zip":"98101","business_phone":"206-499-4949","city_account_number":"0007312120755875","ubi":"6030512120010002"},{"business_legal_name":"SCHWARTZ BROTHERS RESTAURANTS","trade_name":"DANIELS BROILER DOWNTOWN SEATTLE","ownership_type":"General Partnership","naics_code":"722511","naics_description":"Full-Service Restaurants","license_start_date":"2018-12-01T00:00:00.000","street_address":"808 HOWELL ST #200","city_state_zip":"SEATTLE","state":"WA","zip":"98101","business_phone":"425-455-3948","city_account_number":"0005724290742676","ubi":"6024090030010016"},{"business_legal_name":"WASHINGTON TAPROOMS LLC","trade_name":"LOCUST CIDER","ownership_type":"LLC - Multi Member","naics_code":"722511","naics_description":"Full-Service Restaurants","license_start_date":"2019-09-12T00:00:00.000","street_address":"1222 POST ALY","city_state_zip":"SEATTLE","state":"WA","zip":"98101","business_phone":"646-783-9267","city_account_number":"0008416520756455","ubi":"6044539810010001"}];
+
+//insert an array of restaurants
+async function insertRestaurant() {
+  let response = await Testrestaurant.create(sampleDataArray, function(err, sampleDataArray){ console.log("I'm an error log in the create method", err)});
+  if (response) console.log("Think it worked!");
+  return response;
+}
+//Call the batched insertion
+insertRestaurant()
+.catch(function(err){
+  console.log("I'm an error log in insertRestaurant's catch", err);
+});
+
+insertRestaurant();
+
+
 
 //Write a basic query that returns the contents of testrestaurants
 async function getSampleOutput(query = {}){
   let rawResponse = await Testrestaurant.find({}, function(err, restaurants) {
     return restaurants;
   });
+  console.log(rawResponse);
   return rawResponse;
 };
-getSampleOutput().catch(function(err){ console.log(err); });
-
-//print contents of getSampleOutput to log
-async function run() {
-  const something = await getSampleOutput();
-  console.log(something);
-};
-
 //call the sample
-run();
+getSampleOutput().catch(function(err){
+  console.log("I'm an error log in sampleOutput's catch", err);
+});
+
 
 //empty testrestaurants
 async function removeTestRestaurants(){
@@ -201,9 +215,9 @@ async function sodaCall(zipcode=false) {
 
 async function proveAPIWorks(){
   let url = geoApi.replace("SEARCH_STRING", "Empire%20State%20Building");
-  console.log(typeof url);
+  console.log("this log is in proveAPIWorks", typeof url);
   let init = {};
-  console.log(url);
+  console.log("this log is in proveAPIWorks", url);
   let headers = {
     "async": true,
     "crossDomain": true,
@@ -214,9 +228,9 @@ async function proveAPIWorks(){
   try {
     let response = await fetch(url, init);
     let output = await response.json();
-    console.log(output);
+    console.log("this log is in proveAPIWorks", output);
   } catch(err){
-    console.log(err);
+    console.log("this log is in proveAPIWorks", err);
   }
 
 //
