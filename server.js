@@ -48,7 +48,11 @@ example of restaurant data (for schema formatting):
 */
 
 //configure db;
-mongoose.connect('mongodb://localhost/test', {useNewUrlParser: true});
+mongoose.connect('mongodb://localhost/test', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  useCreateIndex: true
+});
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'))
 db.once('open', function(){
@@ -70,13 +74,38 @@ const restaurantSchema = new Schema({
   zip: String,
   business_phone: String,
   city_account_number: String,
-  ubi: String
+  ubi: String,
+  lat: String,
+  long: String
 });
 restaurantSchema.index({trade_name: 1, license_start_date: 1, zip: 1, ubi: 1});
+//TODO: consider writing a static model method to purge restaurants more than a year old.
 
+//configure model
 const Restaurant = mongoose.model('Restaurant', restaurantSchema);
+//writing a test model to practice.
+const Testrestaurant = mongoose.model('Testrestaurant', restaurantSchema);
+//testing insertion
+let sampleDate = new Date("2019-06-01T00:00:00.000");
+const sampleRest = new Testrestaurant({
+  business_legal_name:"ABACUS HOSPITALITY LLC",
+  trade_name:"FRESH TASTE CAFE",
+  ownership_type:"LLC - Single Member",
+  naics_code:"722513",
+  "naics_description":"Limited-Service Restaurants",
+  license_start_date: sampleDate,
+  street_address:"700 STEWART ST",
+  city_state_zip:"SEATTLE",
+  state:"WA",
+  zip:"98101",
+  business_phone:"360-553-3087",
+  city_account_number:"0008291010752342",
+  ubi:"603416636"
+});
 
-//consider writing a static model method to purge restaurants more than a year old.
+sampleRest.save(function (err) {
+  if (err) return handleError(err);
+});
 
 router.get('/', function(req,res){
   res.sendFile(path.join(__dirname+'/index.html'));
