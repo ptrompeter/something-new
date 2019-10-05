@@ -87,35 +87,44 @@ const Restaurant = mongoose.model('Restaurant', restaurantSchema);
 const Testrestaurant = mongoose.model('Testrestaurant', restaurantSchema);
 //testing insertion
 let sampleDate = new Date("2019-06-01T00:00:00.000");
-const sampleRest = new Testrestaurant({
-  business_legal_name:"ABACUS HOSPITALITY LLC",
-  trade_name:"FRESH TASTE CAFE",
-  ownership_type:"LLC - Single Member",
-  naics_code:"722513",
-  "naics_description":"Limited-Service Restaurants",
-  license_start_date: sampleDate,
-  street_address:"700 STEWART ST",
-  city_state_zip:"SEATTLE",
-  state:"WA",
-  zip:"98101",
-  business_phone:"360-553-3087",
-  city_account_number:"0008291010752342",
-  ubi:"603416636"
-});
-sampleRest.save(function (err) {
-  if (err) return handleError(err);
-});
+// const sampleRest = new Testrestaurant({
+//   business_legal_name:"ABACUS HOSPITALITY LLC",
+//   trade_name:"FRESH TASTE CAFE",
+//   ownership_type:"LLC - Single Member",
+//   naics_code:"722513",
+//   "naics_description":"Limited-Service Restaurants",
+//   license_start_date: sampleDate,
+//   street_address:"700 STEWART ST",
+//   city_state_zip:"SEATTLE",
+//   state:"WA",
+//   zip:"98101",
+//   business_phone:"360-553-3087",
+//   city_account_number:"0008291010752342",
+//   ubi:"603416636"
+// });
+// sampleRest.save(function (err) {
+//   if (err) return handleError(err);
+// });
 
 //sample data for batch insertion.
-const sampleDataArray = [{"business_legal_name":"ABACUS HOSPITALITY LLC","trade_name":"FRESH TASTE CAFE","ownership_type":"LLC - Single Member","naics_code":"722513","naics_description":"Limited-Service Restaurants","license_start_date":"2019-06-01T00:00:00.000","street_address":"700 STEWART ST","city_state_zip":"SEATTLE","state":"WA","zip":"98101","business_phone":"360-553-3087","city_account_number":"0008291010752342","ubi":"603416636"},{"business_legal_name":"CRAB POT RESTAURANTS INC","trade_name":"THE CRAB POT","ownership_type":"Corporation","naics_code":"722511","naics_description":"Full-Service Restaurants","license_start_date":"2019-01-01T00:00:00.000","street_address":"1301 ALASKAN WAY","city_state_zip":"SEATTLE","state":"WA","zip":"98101","business_phone":"206-623-8600","city_account_number":"0008308990745210","ubi":"6042822600010001"},{"business_legal_name":"PREMIER MEAT PIES LLC","trade_name":"PREMIER MEAT PIES LLC","ownership_type":"LLC - Multi Member","naics_code":"722513","naics_description":"Limited-Service Restaurants","license_start_date":"2018-11-01T00:00:00.000","street_address":"1001 ALASKAN WAY # 105","city_state_zip":"SEATTLE","state":"WA","zip":"98101","business_phone":"206-619-0499","city_account_number":"0007842320744027","ubi":"603512468"},{"business_legal_name":"SAI RESTAURANTS ENTERPRISE INC","trade_name":"ZAIKA RESTAURANT AND LOUNGE","ownership_type":"Corporation","naics_code":"722511","naics_description":"Full-Service Restaurants","license_start_date":"2019-09-11T00:00:00.000","street_address":"1100 PIKE ST","city_state_zip":"SEATTLE","state":"WA","zip":"98101","business_phone":"206-499-4949","city_account_number":"0007312120755875","ubi":"6030512120010002"},{"business_legal_name":"SCHWARTZ BROTHERS RESTAURANTS","trade_name":"DANIELS BROILER DOWNTOWN SEATTLE","ownership_type":"General Partnership","naics_code":"722511","naics_description":"Full-Service Restaurants","license_start_date":"2018-12-01T00:00:00.000","street_address":"808 HOWELL ST #200","city_state_zip":"SEATTLE","state":"WA","zip":"98101","business_phone":"425-455-3948","city_account_number":"0005724290742676","ubi":"6024090030010016"},{"business_legal_name":"WASHINGTON TAPROOMS LLC","trade_name":"LOCUST CIDER","ownership_type":"LLC - Multi Member","naics_code":"722511","naics_description":"Full-Service Restaurants","license_start_date":"2019-09-12T00:00:00.000","street_address":"1222 POST ALY","city_state_zip":"SEATTLE","state":"WA","zip":"98101","business_phone":"646-783-9267","city_account_number":"0008416520756455","ubi":"6044539810010001"}];
+const sampleDataArray = [
+  {"business_legal_name":"ABACUS HOSPITALITY LLC","trade_name":"FRESH TASTE CAFE","ownership_type":"LLC - Single Member","naics_code":"722513","naics_description":"Limited-Service Restaurants","license_start_date":"2019-06-01T00:00:00.000","street_address":"700 STEWART ST","city_state_zip":"SEATTLE","state":"WA","zip":"98101","business_phone":"360-553-3087","city_account_number":"0008291010752342","ubi":"603416636"},
+  {"business_legal_name":"CRAB POT RESTAURANTS INC","trade_name":"THE CRAB POT","ownership_type":"Corporation","naics_code":"722511","naics_description":"Full-Service Restaurants","license_start_date":"2019-01-01T00:00:00.000","street_address":"1301 ALASKAN WAY","city_state_zip":"SEATTLE","state":"WA","zip":"98101","business_phone":"206-623-8600","city_account_number":"0008308990745210","ubi":"6042822600010001"},
+  {"business_legal_name":"PREMIER MEAT PIES LLC","trade_name":"PREMIER MEAT PIES LLC","ownership_type":"LLC - Multi Member","naics_code":"722513","naics_description":"Limited-Service Restaurants","license_start_date":"2018-11-01T00:00:00.000","street_address":"1001 ALASKAN WAY # 105","city_state_zip":"SEATTLE","state":"WA","zip":"98101","business_phone":"206-619-0499","city_account_number":"0007842320744027","ubi":"603512468"},
+  {"business_legal_name":"SAI RESTAURANTS ENTERPRISE INC","trade_name":"ZAIKA RESTAURANT AND LOUNGE","ownership_type":"Corporation","naics_code":"722511","naics_description":"Full-Service Restaurants","license_start_date":"2019-09-11T00:00:00.000","street_address":"1100 PIKE ST","city_state_zip":"SEATTLE","state":"WA","zip":"98101","business_phone":"206-499-4949","city_account_number":"0007312120755875","ubi":"6030512120010002"},
+  {"business_legal_name":"SCHWARTZ BROTHERS RESTAURANTS","trade_name":"DANIELS BROILER DOWNTOWN SEATTLE","ownership_type":"General Partnership","naics_code":"722511","naics_description":"Full-Service Restaurants","license_start_date":"2018-12-01T00:00:00.000","street_address":"808 HOWELL ST #200","city_state_zip":"SEATTLE","state":"WA","zip":"98101","business_phone":"425-455-3948","city_account_number":"0005724290742676","ubi":"6024090030010016"},
+  {"business_legal_name":"WASHINGTON TAPROOMS LLC","trade_name":"LOCUST CIDER","ownership_type":"LLC - Multi Member","naics_code":"722511","naics_description":"Full-Service Restaurants","license_start_date":"2019-09-12T00:00:00.000","street_address":"1222 POST ALY","city_state_zip":"SEATTLE","state":"WA","zip":"98101","business_phone":"646-783-9267","city_account_number":"0008416520756455","ubi":"6044539810010001"}
+];
 
 //update the 722513 records to be more than one year old
 async function makeSomeOld() {
   let insertion = await insertRestaurant();
   let allRecords = await getSampleOutput();
+  console.log("allRecords:", allRecords);
   async function transform(entries) {
-    allRecords.forEach(function(entry) {
+    entries.forEach(function(entry) {
       if (entry.naics_code === '722513'){
+        console.log("I'm an entry", entry);
         entry.license_start_date.setFullYear(entry.license_start_date.getFullYear() - 1);
         entry.save(function(err){
           if (err) return handleError(err);
@@ -125,8 +134,9 @@ async function makeSomeOld() {
     let changeFiles = await getSampleOutput({naics_code: '722513'});
     console.log("MODIFIED FILES:", changeFiles);
   }
-  transform();
+  transform(allRecords);
 }
+
 makeSomeOld()
 .catch(function(err){
   console.log("I'm an error log in makeSomeOld's catch", err);
@@ -153,13 +163,14 @@ async function getSampleOutput(query = {}){
   let rawResponse = await Testrestaurant.find(query, function(err, restaurants) {
     return restaurants;
   });
-  console.log(rawResponse);
+  console.log("response from getSampleOutput", rawResponse);
+  console.log("Count:", rawResponse.length);
   return rawResponse;
 };
 //call the sample
-getSampleOutput().catch(function(err){
-  console.log("I'm an error log in sampleOutput's catch", err);
-});
+// getSampleOutput().catch(function(err){
+//   console.log("I'm an error log in sampleOutput's catch", err);
+// });
 
 
 //empty testrestaurants
@@ -168,7 +179,7 @@ async function removeTestRestaurants(){
   console.log("Records deleted:", response.deletedCount);
 }
 //call the cleanup function
-removeTestRestaurants();
+// removeTestRestaurants();
 
 
 //ROUTES
