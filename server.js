@@ -122,15 +122,17 @@ async function makeSomeOld() {
   let allRecords = await getSampleOutput();
   console.log("allRecords:", allRecords);
   async function transform(entries) {
-    entries.forEach(function(entry) {
+    entries.forEach(async function(entry) {
       if (entry.naics_code === '722513'){
         // console.log("I'm an entry", entry);
         // console.log("entry license start date:", entry.license_start_date);
         entry.license_start_date.setFullYear(entry.license_start_date.getFullYear() - 1);
         // console.log("modified entry license start Date:", entry.license_start_date);
-        entry.save(function(err){
-          if (err) return handleError(err);
-        });
+        await entry.markModified('license_start_date');
+        await entry.save();
+        // await entry.save(function(err){
+        //   if (err) return handleError(err);
+        // });
       }
     })
     let changeFiles = await getSampleOutput({naics_code: '722513'});
