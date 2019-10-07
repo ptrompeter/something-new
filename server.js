@@ -118,21 +118,14 @@ const sampleDataArray = [
 
 //update the 722513 records to be more than one year old
 async function makeSomeOld() {
-  let insertion = await insertRestaurant();
   let allRecords = await getSampleOutput();
   console.log("allRecords:", allRecords);
   async function transform(entries) {
     entries.forEach(async function(entry) {
       if (entry.naics_code === '722513'){
-        // console.log("I'm an entry", entry);
-        // console.log("entry license start date:", entry.license_start_date);
         entry.license_start_date.setFullYear(entry.license_start_date.getFullYear() - 1);
-        // console.log("modified entry license start Date:", entry.license_start_date);
         await entry.markModified('license_start_date');
         await entry.save();
-        // await entry.save(function(err){
-        //   if (err) return handleError(err);
-        // });
       }
     })
     let changeFiles = await getSampleOutput({naics_code: '722513'});
@@ -141,24 +134,9 @@ async function makeSomeOld() {
   }
   await transform(allRecords);
   let oldRecords = await getSampleOutput({naics_code: '722513'}, "If these have old dates, you win.");
-  await removeTestRestaurants();
+  // await removeTestRestaurants();
   return oldRecords;
 }
-
-makeSomeOld()
-.catch(function(err){
-  console.log("I'm an error log in makeSomeOld's catch", err);
-});
-
-//testing Date transformation
-let testDate = new Date;
-console.log("testDate:", testDate);
-console.log("testDate.getFullYear:", testDate.getFullYear());
-console.log("testdate.getFullYear -1:", testDate.getFullYear() - 1);
-testDate.setFullYear(testDate.getFullYear() - 1)
-console.log("Output of reset date object:", testDate)
-console.log("modified testDate.getFullYear:", testDate.getFullYear());
-
 
 //insert an array of restaurants
 async function insertRestaurant() {
@@ -166,15 +144,6 @@ async function insertRestaurant() {
   if (response) console.log("Think it worked!");
   return response;
 }
-//Call the batched insertion
-// insertRestaurant()
-// .catch(function(err){
-//   console.log("I'm an error log in insertRestaurant's catch", err);
-// });
-
-// insertRestaurant();
-
-
 
 //Write a basic query that returns the contents of testrestaurants
 async function getSampleOutput(query = {}, message = "No message passed"){
@@ -186,19 +155,27 @@ async function getSampleOutput(query = {}, message = "No message passed"){
   console.log("Count:", rawResponse.length);
   return rawResponse;
 };
-//call the sample
-// getSampleOutput().catch(function(err){
-//   console.log("I'm an error log in sampleOutput's catch", err);
-// });
-
 
 //empty testrestaurants
 async function removeTestRestaurants(){
   let response = await Testrestaurant.remove({});
   console.log("Records deleted:", response.deletedCount);
 }
-//call the cleanup function
-// removeTestRestaurants();
+
+//Composite testing function
+async function runTestCode(){
+  await insertRestaurant();
+  let oldRecords = await makeSomeOld();
+  await removeTestRestaurants();
+  return oldRecords;
+}
+
+//run test code
+runTestCode()
+.catch(function(err){
+  console.log("I'm an error log in runTestCode's catch", err);
+});
+
 
 
 //ROUTES
