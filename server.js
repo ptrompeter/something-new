@@ -124,23 +124,39 @@ async function makeSomeOld() {
   async function transform(entries) {
     entries.forEach(function(entry) {
       if (entry.naics_code === '722513'){
-        console.log("I'm an entry", entry);
+        // console.log("I'm an entry", entry);
+        // console.log("entry license start date:", entry.license_start_date);
         entry.license_start_date.setFullYear(entry.license_start_date.getFullYear() - 1);
+        // console.log("modified entry license start Date:", entry.license_start_date);
         entry.save(function(err){
           if (err) return handleError(err);
         });
       }
     })
     let changeFiles = await getSampleOutput({naics_code: '722513'});
-    console.log("MODIFIED FILES:", changeFiles);
+    return changeFiles;
+    // console.log("MODIFIED FILES:", changeFiles);
   }
-  transform(allRecords);
+  await transform(allRecords);
+  let oldRecords = await getSampleOutput({naics_code: '722513'}, "If these have old dates, you win.");
+  await removeTestRestaurants();
+  return oldRecords;
 }
 
 makeSomeOld()
 .catch(function(err){
   console.log("I'm an error log in makeSomeOld's catch", err);
 });
+
+//testing Date transformation
+let testDate = new Date;
+console.log("testDate:", testDate);
+console.log("testDate.getFullYear:", testDate.getFullYear());
+console.log("testdate.getFullYear -1:", testDate.getFullYear() - 1);
+testDate.setFullYear(testDate.getFullYear() - 1)
+console.log("Output of reset date object:", testDate)
+console.log("modified testDate.getFullYear:", testDate.getFullYear());
+
 
 //insert an array of restaurants
 async function insertRestaurant() {
@@ -159,7 +175,8 @@ async function insertRestaurant() {
 
 
 //Write a basic query that returns the contents of testrestaurants
-async function getSampleOutput(query = {}){
+async function getSampleOutput(query = {}, message = "No message passed"){
+  console.log("message:", message);
   let rawResponse = await Testrestaurant.find(query, function(err, restaurants) {
     return restaurants;
   });
