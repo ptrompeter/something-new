@@ -225,17 +225,21 @@ async function sodaCall(zipcode=false) {
     'Connection': 'keep-alive',
     'Host': 'data.seattle.gov',
     'cache-control': 'no-cache',
+    // 'limit': '10000',
   }
   let url = "https://data.seattle.gov/resource/wnbq-64tb.json";
   let naics = "?$where=(naics_code == '722513' OR naics_code == '722530' OR naics_code == '722511')";
   let time = new Date();
   time.setMonth(time.getMonth() - 12);
   let zip = zipcode;
+  let limit = "$limit=10000";
   url += naics;
   url += ` AND license_start_date>'${time.toISOString().slice(0, time.toISOString().length -1)}'`;
   if (zip) url += ` AND zip == '${zip}'`;
+  // url +=limit;
   let response = await fetch(url, newInit);
   let parsedRes = await response.json();
+  console.log("return count:", parsedRes.length)
   return parsedRes;
 }
 //
