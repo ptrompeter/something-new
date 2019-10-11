@@ -48,7 +48,7 @@ example of restaurant data (for schema formatting):
 */
 
 //configure db;
-mongoose.connect('mongodb://localhost/test', {
+mongoose.connect('mongodb://localhost/restaurants', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   useCreateIndex: true
@@ -79,12 +79,19 @@ const restaurantSchema = new Schema({
   long: String
 });
 restaurantSchema.index({trade_name: 1, license_start_date: 1, zip: 1, ubi: 1});
+
+//writing a schema to hold the date of last update from Seattle
+const lastupdateSchema = new Schema ({
+  updated: Date,
+})
 //TODO: consider writing a static model method to purge restaurants more than a year old.
 
 //configure model
 const Restaurant = mongoose.model('Restaurant', restaurantSchema);
 //writing a test model to practice.
 const Testrestaurant = mongoose.model('Testrestaurant', restaurantSchema);
+//writing model for last update
+const Lastupdate = mongoose.model('Lastupdate', lastupdateSchema);
 //testing insertion
 let sampleDate = new Date("2019-06-01T00:00:00.000");
 // const sampleRest = new Testrestaurant({
@@ -106,6 +113,72 @@ let sampleDate = new Date("2019-06-01T00:00:00.000");
 //   if (err) return handleError(err);
 // });
 
+
+
+//Write a generalized function for db queries
+async function dbQuery(model, query = {}, message = false) {
+  if (message) console.log("message:", message);
+  let dbReturn = await model.find(query, function(err, restaurants){
+    return restaurants;
+  })
+  console.log("Count:", dbReturn.length);
+  return dbReturn;
+}
+
+//insert an array of restaurants
+async function insertRestaurant(data, collection) {
+  let response = await collection.create(data, function(err, data){ console.log("I'm an error log in the create method", err)});
+  if (response) console.log("Think it worked!");
+  return response;
+}
+
+//Write a function to populate db
+async function callSeattle() {
+  let response;
+  let now = new Date();
+  let updateReturn = await dbQuery(Lastupdate, {}, "requesting lastupdate data");
+  let updateNeeded = false;
+  let firstUpdate = false;
+  if (updateReturn.length < 1) {
+    updateNeeded = true;
+    firstUpdate = true;
+  } else {
+    if (now.getTime() - updateReturn[0].updated.getTime() > 86400000 / 2 ) {
+      updateNeeded = true;
+    }
+  }
+  if (updateNeeded && firstUpdate) {
+    response = await sodaCall();
+  }
+  if (updateNeeded && !firstUpdate){
+    response = await sodaCall(false, updateReturn[0].updated);
+  }
+
+  await insertRestaurant(response, Restaurant);
+  let dbReturn = await dbQuery(Restaurant, {}, "Trying to get All restaurants");
+  if (firstUpdate && response) {
+    let update = new Lastupdate({
+      updated: now,
+    });
+    update.save();
+  } else if (updateNeeded && response){
+    updateReturn[0].updated = now;
+    updateReturn[0].markModified();
+    updateReturn[0].save();
+  } else {
+    console.log("database did not update.")
+  }
+  console.log("db length:", dbReturn.length);
+  return dbReturn;
+}
+
+//calling the function
+callSeattle()
+.catch(function(err){
+  console.log("I'm an error log in runTestCode's catch", err);
+});
+
+//Testing on sample data.
 //sample data for batch insertion.
 const sampleDataArray = [
   {"business_legal_name":"ABACUS HOSPITALITY LLC","trade_name":"FRESH TASTE CAFE","ownership_type":"LLC - Single Member","naics_code":"722513","naics_description":"Limited-Service Restaurants","license_start_date":"2019-06-01T00:00:00.000","street_address":"700 STEWART ST","city_state_zip":"SEATTLE","state":"WA","zip":"98101","business_phone":"360-553-3087","city_account_number":"0008291010752342","ubi":"603416636"},
@@ -118,7 +191,7 @@ const sampleDataArray = [
 
 //update the 722513 records to be more than one year old
 async function makeSomeOld() {
-  let allRecords = await getSampleOutput();
+  let allRecords = await getSampleOutput(Testrestaurant);
   console.log("allRecords:", allRecords);
   async function transform(entries) {
     entries.forEach(async function(entry) {
@@ -128,33 +201,27 @@ async function makeSomeOld() {
         await entry.save();
       }
     })
-    let changeFiles = await getSampleOutput({naics_code: '722513'});
+    let changeFiles = await getSampleOutput(Testrestaurant, {naics_code: '722513'});
     return changeFiles;
     // console.log("MODIFIED FILES:", changeFiles);
   }
   await transform(allRecords);
-  let oldRecords = await getSampleOutput({naics_code: '722513'}, "If these have old dates, you win.");
+  let oldRecords = await getSampleOutput(Testrestaurant, {naics_code: '722513'}, "If these have old dates, you win.");
   // await removeTestRestaurants();
   return oldRecords;
 }
 
-//insert an array of restaurants
-async function insertRestaurant() {
-  let response = await Testrestaurant.create(sampleDataArray, function(err, sampleDataArray){ console.log("I'm an error log in the create method", err)});
-  if (response) console.log("Think it worked!");
-  return response;
-}
-
 //Write a basic query that returns the contents of testrestaurants
-async function getSampleOutput(query = {}, message = "No message passed"){
+async function getSampleOutput(model, query = {}, message = "No message passed"){
   console.log("message:", message);
-  let rawResponse = await Testrestaurant.find(query, function(err, restaurants) {
+  let rawResponse = await model.find(query, function(err, restaurants) {
     return restaurants;
   });
   console.log("response from getSampleOutput", rawResponse);
   console.log("Count:", rawResponse.length);
   return rawResponse;
 };
+
 
 //empty testrestaurants
 async function removeTestRestaurants(){
@@ -164,17 +231,27 @@ async function removeTestRestaurants(){
 
 //Composite testing function
 async function runTestCode(){
-  await insertRestaurant();
+  mongoose.connect('mongodb://localhost/test', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useCreateIndex: true
+  });
+  await insertRestaurant(sampleDataArray, Testrestaurant);
   let oldRecords = await makeSomeOld();
   await removeTestRestaurants();
+  mongoose.connect('mongodb://localhost/restaurants', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useCreateIndex: true
+  });
   return oldRecords;
 }
 
 //run test code
-runTestCode()
-.catch(function(err){
-  console.log("I'm an error log in runTestCode's catch", err);
-});
+// runTestCode()
+// .catch(function(err){
+//   console.log("I'm an error log in runTestCode's catch", err);
+// });
 
 
 
@@ -210,7 +287,7 @@ app.listen(port, (err) => {
   console.log(`server is listening on ${port}`)
 });
 
-async function sodaCall(zipcode=false) {
+async function sodaCall(zipcode=false, lastUpdate = false) {
   let newInit = {};
   let headers = {};
   headers['Accept-Encoding'] = 'gzip'
@@ -225,12 +302,17 @@ async function sodaCall(zipcode=false) {
     'Connection': 'keep-alive',
     'Host': 'data.seattle.gov',
     'cache-control': 'no-cache',
-    // 'limit': '10000',
+    'limit': '10000',
   }
   let url = "https://data.seattle.gov/resource/wnbq-64tb.json";
   let naics = "?$where=(naics_code == '722513' OR naics_code == '722530' OR naics_code == '722511')";
-  let time = new Date();
-  time.setMonth(time.getMonth() - 12);
+  let time;
+  if (lastUpdate) {
+    time = lastUpdate;
+  } else {
+    time = new Date();
+    time.setMonth(time.getMonth() - 12);
+  }
   let zip = zipcode;
   let limit = "$limit=10000";
   url += naics;
@@ -242,10 +324,7 @@ async function sodaCall(zipcode=false) {
   console.log("return count:", parsedRes.length)
   return parsedRes;
 }
-//
-// async function encodeAddress(address){
-//
-// }
+
 
 async function proveAPIWorks(){
   let url = geoApi.replace("SEARCH_STRING", "Empire%20State%20Building");
