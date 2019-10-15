@@ -325,6 +325,37 @@ async function sodaCall(zipcode=false, lastUpdate = false) {
   return parsedRes;
 }
 
+async function geoEncode(restaurant) {
+  let address = restaurant.street_address + ", " + restaurant.city + ", " + restaurant.state + ", " + restaurant.zip;
+  console.log("address:", address);
+  let url = geoApi.replace("SEARCH_STRING", address);
+  let init = {};
+  let headers = {
+    "async": true,
+    "crossDomain": true,
+    "url": url,
+    "method": "GET"
+  }
+  init.headers = headers
+  try {
+    let response = await fetch(url, init);
+    let output = await response.json();
+    console.log("this is the output log in geoEncode", output);
+    return output;
+  } catch(err){
+    console.log("this log an error in geoEncode", err);
+  }
+}
+
+async function testGeoEncode() {
+  let allRestaurants = await dbQuery(Restaurant, {}, "getting all restaurants");
+  console.log("to be encoded:", allRestaurants[0]);
+  let response = await geoEncode(allRestaurants[0]);
+  console.log("Response from API:", response);
+  console.log("Will encode this:", response[0]);
+}
+
+testGeoEncode();
 
 async function proveAPIWorks(){
   let url = geoApi.replace("SEARCH_STRING", "Empire%20State%20Building");
@@ -352,7 +383,7 @@ async function proveAPIWorks(){
 //   // });
 }
 
-proveAPIWorks();
+// proveAPIWorks();
 /*
 I'm keeping my homemade filter function for now (below), in case I decide to implement
 a single daily call to the seattle API, then filter and serve requests myself.
