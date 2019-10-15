@@ -328,9 +328,9 @@ async function sodaCall(zipcode=false, lastUpdate = false) {
 
 async function proveAPIWorks(){
   let url = geoApi.replace("SEARCH_STRING", "Empire%20State%20Building");
-  console.log("this log is in proveAPIWorks", typeof url);
+  console.log("url:", url);
+  console.log("this log is in proveAPIWorks - typeof url", typeof url);
   let init = {};
-  console.log("this log is in proveAPIWorks", url);
   let headers = {
     "async": true,
     "crossDomain": true,
@@ -341,9 +341,9 @@ async function proveAPIWorks(){
   try {
     let response = await fetch(url, init);
     let output = await response.json();
-    console.log("this log is in proveAPIWorks", output);
+    console.log("this is the output log in proveAPIWorks", output);
   } catch(err){
-    console.log("this log is in proveAPIWorks", err);
+    console.log("this log an error in proveAPIWorks", err);
   }
 
 //
@@ -352,7 +352,7 @@ async function proveAPIWorks(){
 //   // });
 }
 
-// proveAPIWorks();
+proveAPIWorks();
 /*
 I'm keeping my homemade filter function for now (below), in case I decide to implement
 a single daily call to the seattle API, then filter and serve requests myself.
