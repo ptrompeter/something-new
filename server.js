@@ -69,7 +69,7 @@ const restaurantSchema = new Schema({
   naics_description: String,
   license_start_date: Date,
   street_address: String,
-  city: String,
+  city_state_zip: String,
   state: String,
   zip: String,
   business_phone: String,
@@ -127,6 +127,10 @@ async function dbQuery(model, query = {}, message = false) {
 
 //insert an array of restaurants
 async function insertRestaurant(data, collection) {
+  data.forEach(function(item){
+    if (!item.lat) item.lat = "";
+    if (!item.long) item.long = "";
+  })
   let response = await collection.create(data, function(err, data){ console.log("I'm an error log in the create method", err)});
   if (response) console.log("Think it worked!");
   return response;
@@ -325,8 +329,9 @@ async function sodaCall(zipcode=false, lastUpdate = false) {
   return parsedRes;
 }
 
+//take an instance of the restaurant model, get lat and long from geoencode API
 async function geoEncode(restaurant) {
-  let address = restaurant.street_address + ", " + restaurant.city + ", " + restaurant.state + ", " + restaurant.zip;
+  let address = restaurant.street_address + ", " + restaurant.city_state_zip + ", " + restaurant.state + ", " + restaurant.zip;
   console.log("address:", address);
   let url = geoApi.replace("SEARCH_STRING", address);
   let init = {};
@@ -334,7 +339,8 @@ async function geoEncode(restaurant) {
     "async": true,
     "crossDomain": true,
     "url": url,
-    "method": "GET"
+    "method": "GET",
+    // "format": "json"
   }
   init.headers = headers
   try {
@@ -346,13 +352,39 @@ async function geoEncode(restaurant) {
     console.log("this log an error in geoEncode", err);
   }
 }
+//Function to try to match a search result to an instance
+async function parseGeoResponse(instance, geoArray){
+  if (geoArray.length == 0) return false;
+  let name = instance.trade_name.toLowerCase()
+  let target = false;
+  geoArray.forEach(function(item){
+    let displayName = item.display_name.toLowerCase();
+    if (displayName.includes(name)) target = item;
+  })
+  return (target) ? target : geoArray[0];
+}
 
 async function testGeoEncode() {
   let allRestaurants = await dbQuery(Restaurant, {}, "getting all restaurants");
   console.log("to be encoded:", allRestaurants[0]);
   let response = await geoEncode(allRestaurants[0]);
   console.log("Response from API:", response);
-  console.log("Will encode this:", response[0]);
+  let singleRes = await parseGeoResponse(allRestaurants[0], response);
+  console.log("Matched response to be added to instance:", singleRes);
+  if (singleRes) {
+    console.log("lat / long to insert:", singleRes.lat, singleRes.lon)
+    allRestaurants[0].lat = singleRes.lat;
+    allRestaurants[0].markModified("lat");
+    allRestaurants[0].long = singleRes.lon;
+    allRestaurants[0].markModified("long");
+    // await allRestaurants[0].markModified("long");
+    await allRestaurants[0].save();
+    console.log("What is allrestaurants[0]?", typeof allRestaurants[0])
+    console.log("Item should now be updated", allRestaurants[0].lat, allRestaurants[0].long);
+    let query = await dbQuery(Restaurant, {trade_name: allRestaurants[0].trade_name});
+    console.log("Final Request from db - should have coords", query);
+    return query;
+  }
 }
 
 testGeoEncode();
