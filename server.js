@@ -191,8 +191,8 @@ async function testWrapper() {
   .catch(function(err){
     console.log("I'm an error log in endcodeAll's catch", err);
   });
-  let query = await dbQuery(Restaurant, {});
-  console.log("HOPING FOR ENCODED ENTRIES:", query);
+  let query = await dbQuery(Restaurant, {lat: ""});
+  console.log("HOPING FOR ZERO UNENCODED ENTRIES:", query);
 }
 //running function
 testWrapper()
@@ -349,6 +349,7 @@ async function sodaCall(zipcode=false, lastUpdate = false) {
 
 //take an instance of the restaurant model, get lat and long from geoencode API
 async function geoEncode(restaurant) {
+  console.log("Hit geoEncode");
   let address = restaurant.street_address + ", " + restaurant.city_state_zip + ", " + restaurant.state + ", " + restaurant.zip;
   console.log("address:", address);
   let url = geoApi.replace("SEARCH_STRING", address);
@@ -360,7 +361,7 @@ async function geoEncode(restaurant) {
     "method": "GET",
     // "format": "json"
   }
-  init.headers = headers
+  init.headers = headers;
   try {
     let response = await fetch(url, init);
     let output = await response.json();
@@ -385,42 +386,46 @@ async function parseGeoResponse(instance, geoArray){
 //Add the lat and long from a search result to a restaurant instance
 async function addLatLong(restaurant, singleResult) {
   restaurant.lat = singleResult.lat;
-  restaurant.markModified("lat");
+  await restaurant.markModified("lat");
   restaurant.long = singleResult.lon;
-  restaurant.markModified("long");
+  await restaurant.markModified("long");
   await restaurant.save();
+  // console.log("Return from addLatLong:", restaurant);
   return restaurant;
 }
 
 //Get all restaurants lacking geoEncoding, encode them, save.
 async function encodeAll(){
   let unEncodedRests = await dbQuery(Restaurant, {lat: ""}, "getting unencoded restaurants");
-  let counter = 0
-  let restslength = unEncodedRests.length;
-  unEncodedRests.forEach(async function(item) {
+  let counter = 0;
+  let restsLength = unEncodedRests.length;
+  // console.log("unEncodedRests", unEncodedRests);
+  console.log("unEncodedRests.length:", unEncodedRests.length);
+  console.log("unEncodedRests[0]", unEncodedRests[0]);
+  // console.log("unEcodedRests[5]", unEncodedRests[5]);
+    //Attempting to regulate calls via setInterval
     try {
-      await setTimeout(function() {
-        console.log("1 second delay complete.  Continuing encoding...")
-      }, 1000);
-      let searchResult = await geoEncode(item);
-      let parsedResult = await parseGeoResponse(item, searchResult);
-      await addLatLong(item, parsedResult);
+      let promise = new Promise((resolve, reject) => {
+        const interval = setInterval(async function() {
+          console.log("in the interval. Counter is: ", counter);
+          let thisRest = unEncodedRests[counter];
+          console.log("thisRest:", thisRest.trade_name);
+          let searchRes = await geoEncode(thisRest);
+          console.log("SearchRes:", searchRes);
+          let geoObj = await parseGeoResponse(thisRest, searchRes);
+          let encodedRest = await addLatLong(thisRest, geoObj);
+          console.log("encoded lat / long:", encodedRest.lat, encodedRest.long);
+          ++counter;
+          if (counter >= restsLength - 1) {
+            clearInterval(interval);
+            resolve("interval cleared.");
+          };
+        }, 1000);
+      });
     } catch(err) {
-      console.log("Error in unEncodedRests forEach loop:", err);
+      console.log("err in encodeAll", err);
     }
-    // if (counter > 1) {
-    //   console.log("Starting 2 second delay");
-    //   let goTime = await setTimeOut(function(){
-    //     counter = 0;
-    //     console.log("2 second delay complete!  Continuing encoding...");
-    //   }, 2000)
-    //   clearTimeout(goTime);
-    // }
-    // let searchResult = await geoEncode(item);
-    // let parsedResult = await parseGeoResponse(item, searchResult);
-    // await addLatLong(item, parsedResult);
-    // counter += 1;
-  });
+
 }
 
 async function testGeoEncode() {
