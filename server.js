@@ -127,13 +127,16 @@ async function dbQuery(model, query = {}, message = false) {
 
 //insert an array of restaurants
 async function insertRestaurant(data, collection) {
-  data.forEach(function(item){
-    if (!item.lat) item.lat = "";
-    if (!item.long) item.long = "";
-  })
-  let response = await collection.create(data, function(err, data){ console.log("I'm an error log in the create method", err)});
-  if (response) console.log("Think it worked!");
-  return response;
+  console.log("insertRestaurant data:", data);
+  if (data) {
+    data.forEach(function(item){
+      if (!item.lat) item.lat = "";
+      if (!item.long) item.long = "";
+    })
+    let response = await collection.create(data, function(err, data){ console.log("I'm an error log in the create method", err)});
+    if (response) console.log("Think it worked!");
+    return response;
+  }
 }
 
 //Write a function to populate db
@@ -167,7 +170,7 @@ async function callSeattle() {
     update.save();
   } else if (updateNeeded && response){
     updateReturn[0].updated = now;
-    updateReturn[0].markModified();
+    updateReturn[0].markModified("updated");
     updateReturn[0].save();
   } else {
     console.log("database did not update.")
@@ -175,11 +178,26 @@ async function callSeattle() {
   console.log("db length:", dbReturn.length);
   return dbReturn;
 }
-
 //calling the function
-callSeattle()
+
+
+//wrapper function for testing async functions on launch
+async function testWrapper() {
+  await callSeattle()
+  .catch(function(err){
+    console.log("I'm an error log in callSeattle's catch", err);
+  });
+  await encodeAll()
+  .catch(function(err){
+    console.log("I'm an error log in endcodeAll's catch", err);
+  });
+  let query = await dbQuery(Restaurant, {});
+  console.log("HOPING FOR ENCODED ENTRIES:", query);
+}
+//running function
+testWrapper()
 .catch(function(err){
-  console.log("I'm an error log in runTestCode's catch", err);
+  console.log("I'm an error log in testWapper's catch", err);
 });
 
 //Testing on sample data.
@@ -216,7 +234,7 @@ async function makeSomeOld() {
 }
 
 //Write a basic query that returns the contents of testrestaurants
-async function getSampleOutput(model, query = {}, message = "No message passed"){
+async function getSampleOutput(model, query = {}, message = "No message passed") {
   console.log("message:", message);
   let rawResponse = await model.find(query, function(err, restaurants) {
     return restaurants;
@@ -234,7 +252,7 @@ async function removeTestRestaurants(){
 }
 
 //Composite testing function
-async function runTestCode(){
+async function runTestCode() {
   mongoose.connect('mongodb://localhost/test', {
     useNewUrlParser: true,
     useUnifiedTopology: true,
@@ -364,6 +382,47 @@ async function parseGeoResponse(instance, geoArray){
   return (target) ? target : geoArray[0];
 }
 
+//Add the lat and long from a search result to a restaurant instance
+async function addLatLong(restaurant, singleResult) {
+  restaurant.lat = singleResult.lat;
+  restaurant.markModified("lat");
+  restaurant.long = singleResult.lon;
+  restaurant.markModified("long");
+  await restaurant.save();
+  return restaurant;
+}
+
+//Get all restaurants lacking geoEncoding, encode them, save.
+async function encodeAll(){
+  let unEncodedRests = await dbQuery(Restaurant, {lat: ""}, "getting unencoded restaurants");
+  let counter = 0
+  let restslength = unEncodedRests.length;
+  unEncodedRests.forEach(async function(item) {
+    try {
+      await setTimeout(function() {
+        console.log("1 second delay complete.  Continuing encoding...")
+      }, 1000);
+      let searchResult = await geoEncode(item);
+      let parsedResult = await parseGeoResponse(item, searchResult);
+      await addLatLong(item, parsedResult);
+    } catch(err) {
+      console.log("Error in unEncodedRests forEach loop:", err);
+    }
+    // if (counter > 1) {
+    //   console.log("Starting 2 second delay");
+    //   let goTime = await setTimeOut(function(){
+    //     counter = 0;
+    //     console.log("2 second delay complete!  Continuing encoding...");
+    //   }, 2000)
+    //   clearTimeout(goTime);
+    // }
+    // let searchResult = await geoEncode(item);
+    // let parsedResult = await parseGeoResponse(item, searchResult);
+    // await addLatLong(item, parsedResult);
+    // counter += 1;
+  });
+}
+
 async function testGeoEncode() {
   let allRestaurants = await dbQuery(Restaurant, {}, "getting all restaurants");
   console.log("to be encoded:", allRestaurants[0]);
@@ -387,7 +446,7 @@ async function testGeoEncode() {
   }
 }
 
-testGeoEncode();
+// testGeoEncode();
 
 async function proveAPIWorks(){
   let url = geoApi.replace("SEARCH_STRING", "Empire%20State%20Building");
