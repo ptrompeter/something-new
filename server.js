@@ -406,21 +406,23 @@ async function encodeAll(){
     //Attempting to regulate calls via setInterval
     try {
       let promise = new Promise((resolve, reject) => {
-        const interval = setInterval(async function() {
-          console.log("in the interval. Counter is: ", counter);
-          let thisRest = unEncodedRests[counter];
-          console.log("thisRest:", thisRest.trade_name);
-          let searchRes = await geoEncode(thisRest);
-          console.log("SearchRes:", searchRes);
-          let geoObj = await parseGeoResponse(thisRest, searchRes);
-          let encodedRest = await addLatLong(thisRest, geoObj);
-          console.log("encoded lat / long:", encodedRest.lat, encodedRest.long);
-          ++counter;
-          if (counter >= restsLength - 1) {
-            clearInterval(interval);
-            resolve("interval cleared.");
-          };
-        }, 1000);
+        if (restsLength != 0) {
+          const interval = setInterval(async function() {
+            console.log("in the interval. Counter is: ", counter);
+            let thisRest = unEncodedRests[counter];
+            console.log("thisRest:", thisRest.trade_name);
+            let searchRes = await geoEncode(thisRest);
+            console.log("SearchRes:", searchRes);
+            let geoObj = await parseGeoResponse(thisRest, searchRes);
+            let encodedRest = await addLatLong(thisRest, geoObj);
+            console.log("encoded lat / long:", encodedRest.lat, encodedRest.long);
+            ++counter;
+            if (counter >= restsLength - 1) {
+              clearInterval(interval);
+            };
+          }, 1000);
+        };
+        resolve("Promise resolved.");
       });
     } catch(err) {
       console.log("err in encodeAll", err);
@@ -472,14 +474,8 @@ async function proveAPIWorks(){
   } catch(err){
     console.log("this log an error in proveAPIWorks", err);
   }
-
-//
-//   // $.ajax(settings).done(function (response) {
-//   //   console.log(response);
-//   // });
 }
 
-// proveAPIWorks();
 /*
 I'm keeping my homemade filter function for now (below), in case I decide to implement
 a single daily call to the seattle API, then filter and serve requests myself.
