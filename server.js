@@ -104,10 +104,20 @@ router.get('/', function(req,res){
 //Send to DOM a list of recently opened restaurants filtered by zipcode.
 app.post('/', async function(req,res){
   let zip = false;
-  let zipRestaurants = false;
+  let output = false;
+  let address = false;
+  let lastUpdate = await dbQuery(Lastupdate, {});
+  lastUpdate = lastUpdate[0].updated
   if (req.body.zip) zip = req.body.zip;
-  zipRestaurants = await sodaCall(zip);
-  res.send(zipRestaurants);
+  if (req.body.address) address = req.body.address;
+  if (zip) output = await dbQuery(Restaurant, {zip: zip})
+  if (address) {
+    let searchRes = await geoEncode(false, address);
+    let userCoords;
+    userCoords = (searchRes.length > 0) ? searchRes[0] : false;
+
+  }
+  res.send(output);
 })
 
 //render a main page.
@@ -194,6 +204,21 @@ async function callSeattle() {
   return dbReturn;
 }
 
+//Return a list of restaurants sorted by distance from user coordinates
+async function getRestaurantsByDistance(locationObj){
+  const allRestaurants = await dbQuery(Restaurant, {});
+  let outputArray = [];
+  allRestaurants.forEach(function(restaurant) {
+    let distance = calcDistanceInKm(restaurant, locationObj)
+    let restObj = {
+      'restaurant': restaurant,
+      'distance': distance,
+    }
+    outputArray.push(restObj);
+  });
+  outputArray.sort((a, b) => a.distance - b.distance);
+  return outputArray;
+}
 
 //API CALL FUNCTIONS
 
@@ -236,10 +261,11 @@ async function sodaCall(zipcode=false, lastUpdate = false) {
   return parsedRes;
 }
 
-//take an instance of the restaurant model, get lat and long from geoencoding API
-async function geoEncode(restaurant) {
+/*Take either a restaurant instance as a first param, or a string as a second param
+and return search results with lat and long from an api.*/
+async function geoEncode(restaurant = false, string = false) {
   console.log("Hit geoEncode");
-  let address = restaurant.street_address + ", " + restaurant.city_state_zip + ", " + restaurant.state + ", " + restaurant.zip;
+  let address = (string) ? address: restaurant.street_address + ", " + restaurant.city_state_zip + ", " + restaurant.state + ", " + restaurant.zip;
   console.log("address:", address);
   let url = geoApi.replace("SEARCH_STRING", address);
   let init = {};
@@ -254,7 +280,7 @@ async function geoEncode(restaurant) {
   try {
     let response = await fetch(url, init);
     let output = await response.json();
-    console.log("this is the output log in geoEncode", output);
+    // console.log("this is the output log in geoEncode", output);
     return output;
   } catch(err){
     console.log("this log an error in geoEncode", err);
@@ -262,6 +288,9 @@ async function geoEncode(restaurant) {
 }
 
 //Match a geoencoding search result to a restaurant instance
+/* TODO: Add a second filter to look for 'washington' in display_name if
+matching name fails...I've gotten my first encoded result in south africa.*/
+
 async function parseGeoResponse(instance, geoArray){
   if (geoArray.length == 0) return false;
   let name = instance.trade_name.toLowerCase()
@@ -360,8 +389,11 @@ async function testWrapper() {
     console.log("I'm an error log in endcodeAll's catch", err);
   });
   let query = await dbQuery(Restaurant, {lat: ""});
-  console.log("HOPING FOR ZERO UNENCODED ENTRIES:", query);
-  await testDistance();
+  // console.log("HOPING FOR ZERO UNENCODED ENTRIES:", query);
+  // await a test of getRestaurantsByDistance();
+  let allRests = await dbQuery(Restaurant, {});
+  let sortedRests = await getRestaurantsByDistance(allRests[0]);
+  console.log("sorted restaurant list:", sortedRests);
 }
 
 //running function
