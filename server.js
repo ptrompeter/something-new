@@ -317,6 +317,36 @@ async function encodeAll(){
 
 }
 
+//FUNCTIONS TO COMPUTE DISTANCE
+function degreesToRadians(degrees) {
+  return degrees * Math.PI / 180;
+}
+
+function calcDistanceInKm(address1, address2) {
+  const earthRadiusKm = 6371;
+
+  let dLat = degreesToRadians(address2.lat - address1.lat);
+  let dLon;
+  if (address2.long) {
+    dLon = degreesToRadians(address2.long - address1.long);
+  } else {
+    dLon = degreesToRadians(address2.long - address1.lon);
+  }
+
+  let lat1 = degreesToRadians(address1.lat);
+  let lat2 = degreesToRadians(address2.lat);
+
+  var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+          Math.sin(dLon/2) * Math.sin(dLon/2) * Math.cos(lat1) * Math.cos(lat2);
+  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return earthRadiusKm * c;
+}
+
+async function testDistance() {
+  let testQuery = await dbQuery(Restaurant, {});
+  let result = calcDistanceInKm(testQuery[0], testQuery[1]);
+  console.log("distance calc:", result);
+}
 //MANAGE STARTUP FUNCTION EXECUTIONS
 
 //wrapper function for testing async functions on launch
@@ -331,6 +361,7 @@ async function testWrapper() {
   });
   let query = await dbQuery(Restaurant, {lat: ""});
   console.log("HOPING FOR ZERO UNENCODED ENTRIES:", query);
+  await testDistance();
 }
 
 //running function
