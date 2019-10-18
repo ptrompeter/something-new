@@ -148,7 +148,7 @@ async function dbQuery(model, query = {}, message = false) {
   let dbReturn = await model.find(query, function(err, restaurants){
     return restaurants;
   })
-  console.log("Count:", dbReturn.length);
+  console.log("db Query Count:", dbReturn.length);
   return dbReturn;
 }
 

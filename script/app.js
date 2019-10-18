@@ -25,6 +25,26 @@ async function getList(zip = false, address = false) {
   return parsedResponse;
 }
 
+function formatData(dataObj, usrString = "") {
+  let article = $("<article></article");
+  let titleDiv = (usrString) ? $(`<div>Results for ${usrString}</div>`) : $("<div>Your Results</div>")
+  titleDiv.addClass("result-title");
+  article.append(titleDiv);
+  let ul = $("<ul class='result-list'></ul>")
+  dataObj.forEach(function(entry){
+    let li = $("<li></li>");
+    li.addClass("result-item");
+    li.append($(`<div class='rest-name'>${entry.restaurant.trade_name}</div>`));
+    li.append($(`<div class='rest-address-1'>${entry.restaurant.street_address}</div>`));
+    let line2 = entry.restaurant.city_state_zip + ", " + entry.restaurant.state + ", " + entry.restaurant.zip;
+    li.append($(`<div class='rest-address-2'>${line2}</div>`));
+    li.append($(`<div class='rest-tel'>${entry.restaurant.business_phone}</div>`));
+    li.append($(`<div class='rest-distance'>Distance (in km): ${entry.distance}</div>`));
+    ul.append(li);
+  })
+  article.append(ul);
+  return article
+}
 //event listeners
 zipForm.submit(async function (event) {
   event.preventDefault();
@@ -34,6 +54,18 @@ zipForm.submit(async function (event) {
 
 addForm.submit(async function (event) {
   event.preventDefault();
-  let response = (addBox[0].value) ? await getList(false, addBox[0].value) : await getList();
-  addDisplay[0].innerText = JSON.stringify(response);
+  console.log("addbox:", addBox);
+  let address
+  if (addBox[0].value) address = addBox[0].value;
+  console.log("Address before call:", address);
+  let response = (address) ? await getList(false, address) : await getList();
+  // let data = JSON.stringify(response);
+  // console.log("data", data);
+  let formatedData = formatData(response, address);
+  // addDisplay[0].innerText = JSON.stringify(response);
+  if (addDisplay.children().length == 0){
+    addDisplay.append(formatedData);
+  } else {
+    addDisplay.children().first().replaceWith(formatedData)
+  }
 });
