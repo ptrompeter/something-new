@@ -107,14 +107,16 @@ app.post('/', async function(req,res){
   let output = false;
   let address = false;
   let lastUpdate = await dbQuery(Lastupdate, {});
-  lastUpdate = lastUpdate[0].updated
+  lastUpdate = lastUpdate[0].updated;
   if (req.body.zip) zip = req.body.zip;
   if (req.body.address) address = req.body.address;
   if (zip) output = await dbQuery(Restaurant, {zip: zip})
   if (address) {
     let searchRes = await geoEncode(false, address);
     let userCoords;
+    //TODO: Think of a better way to choose a search result?
     userCoords = (searchRes.length > 0) ? searchRes[0] : false;
+    if (userCoords) output = await getRestaurantsByDistance(userCoords);
 
   }
   res.send(output);
@@ -206,6 +208,7 @@ async function callSeattle() {
 
 //Return a list of restaurants sorted by distance from user coordinates
 async function getRestaurantsByDistance(locationObj){
+  console.log("locationObj:", locationObj);
   const allRestaurants = await dbQuery(Restaurant, {});
   let outputArray = [];
   allRestaurants.forEach(function(restaurant) {
@@ -217,6 +220,7 @@ async function getRestaurantsByDistance(locationObj){
     outputArray.push(restObj);
   });
   outputArray.sort((a, b) => a.distance - b.distance);
+  // console.log(outputArray);
   return outputArray;
 }
 
@@ -264,9 +268,8 @@ async function sodaCall(zipcode=false, lastUpdate = false) {
 /*Take either a restaurant instance as a first param, or a string as a second param
 and return search results with lat and long from an api.*/
 async function geoEncode(restaurant = false, string = false) {
-  console.log("Hit geoEncode");
-  let address = (string) ? address: restaurant.street_address + ", " + restaurant.city_state_zip + ", " + restaurant.state + ", " + restaurant.zip;
-  console.log("address:", address);
+  let address;
+  address = (string) ? string : restaurant.street_address + ", " + restaurant.city_state_zip + ", " + restaurant.state + ", " + restaurant.zip;
   let url = geoApi.replace("SEARCH_STRING", address);
   let init = {};
   let headers = {
@@ -356,10 +359,11 @@ function calcDistanceInKm(address1, address2) {
 
   let dLat = degreesToRadians(address2.lat - address1.lat);
   let dLon;
+  //TODO: Fix this formatting.  Somehow.
   if (address2.long) {
     dLon = degreesToRadians(address2.long - address1.long);
   } else {
-    dLon = degreesToRadians(address2.long - address1.lon);
+    dLon = degreesToRadians(address2.lon - address1.long);
   }
 
   let lat1 = degreesToRadians(address1.lat);
@@ -388,12 +392,12 @@ async function testWrapper() {
   .catch(function(err){
     console.log("I'm an error log in endcodeAll's catch", err);
   });
-  let query = await dbQuery(Restaurant, {lat: ""});
-  // console.log("HOPING FOR ZERO UNENCODED ENTRIES:", query);
-  // await a test of getRestaurantsByDistance();
-  let allRests = await dbQuery(Restaurant, {});
-  let sortedRests = await getRestaurantsByDistance(allRests[0]);
-  console.log("sorted restaurant list:", sortedRests);
+  // let query = await dbQuery(Restaurant, {lat: ""});
+  // // console.log("HOPING FOR ZERO UNENCODED ENTRIES:", query);
+  // // await a test of getRestaurantsByDistance();
+  // let allRests = await dbQuery(Restaurant, {});
+  // let sortedRests = await getRestaurantsByDistance(allRests[0]);
+  // console.log("sorted restaurant list:", sortedRests);
 }
 
 //running function
