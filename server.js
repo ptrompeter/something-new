@@ -25,6 +25,8 @@ app.use(express.static(__dirname + '/view'));
 //Store all HTML files in view folder.
 app.use(express.static(__dirname + '/script'));
 //Store all JS and CSS in Scripts folder.
+app.use(express.static(__dirname + '/public'));
+//Put css pages and static assets in public
 app.use('/', router);
 // app.listen(process.env.port || 3000);
 
