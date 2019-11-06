@@ -33,13 +33,13 @@ function formatData(dataObj, usrString = "") {
   let ul = $("<ul class='result-list'></ul>")
   dataObj.forEach(function(entry){
     let li = $("<li></li>");
-    li.addClass("result-item");
+    li.addClass("result-item translucent");
     li.append($(`<div class='rest-name'>${entry.restaurant.trade_name}</div>`));
+    li.append($(`<div class='rest-distance'><span class='distance-flag'>Distance: </span> <span>${entry.distance.toFixed(2)}km</span></div>`));
     li.append($(`<div class='rest-address-1'>${entry.restaurant.street_address}</div>`));
     let line2 = entry.restaurant.city_state_zip + ", " + entry.restaurant.state + ", " + entry.restaurant.zip;
     li.append($(`<div class='rest-address-2'>${line2}</div>`));
     li.append($(`<div class='rest-tel'>${entry.restaurant.business_phone}</div>`));
-    li.append($(`<div class='rest-distance'>Distance (in km): ${entry.distance}</div>`));
     ul.append(li);
   })
   article.append(ul);

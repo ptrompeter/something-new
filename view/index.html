@@ -36,24 +36,32 @@
         <a class="nav-link" href="#" id="some-link">By Zipcode</a>
       </li>
     </ul>
+    <span id="blurb" class="navbar-text">
+      <i>Find new Seattle restaurants near you!</i>
+    </span>
   </div>
 </nav>
   <div class="container">
+    <!-- <div class="row" id="explainer-row">
+      <div id="explainer">
+        Someplace New helps you find recently opened restaurants in the Seattle area.  Enter your address (or any address) into the form below, and Someplace New will return a list of recently opened restaurants, sorted by distance to your location.
+      </div>
+    </div> -->
     <div class="row" id="row1">
-      <div class="col-12 img-responsive" id="content-box">
+      <div class="col-12 img-responsive" id="content-box" class="default-box">
         <form id="zip-form">
           Enter Zip Code: <input type="text" name="zipbox" id="zip">
-          <input type="submit" value="submit">
+          <input type="submit" value="Find New Restaurants By Zip Code" class="submit-button">
         </form>
       </div>
       <div class="col-12 img-responsive" id="display-box">
       </div>
     </div>
     <div class="row" id="row2">
-      <div class="col-12 img-responsive" id="content-box2">
-        <form id="address-form">
-          Enter An Address: <input type="text" name="address-box" id="address">
-          <input type="submit" value="submit">
+      <div class="col-12 img-responsive" id="content-box2" class="default-box">
+        <form id="address-form" class="form-style">
+          Enter An Address: <input class="form-input-text transparent" type="text" name="address-box" id="address" placeholder="Find new restaurants near you!">
+          <input type="submit" value="Go!" class="submit-button">
         </form>
       </div>
       <div class="col-12 img-responsive" id="display-box2">
