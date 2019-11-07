@@ -68,14 +68,12 @@ body {
 #address-text {
   margin-top: 1rem;
   width: 100%;
-  /* max-width: 576px; */
   max-width: 360px;
 
 }
 
 #city-state-zip-div {
   width: 100%;
-  /* max-width: 576px; */
   max-width: 360px;
 
 }
@@ -103,9 +101,9 @@ body {
   min-width: 3rem;
 }
 /* CSS for returned restuarants */
-ul li {
+.search-results ul li {
     /* float: right; */
-    display: block;
+    display: none;
     padding: 8px;
     list-style-type: none;
 }

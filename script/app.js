@@ -33,6 +33,7 @@ async function getList(zip = false, address = false) {
 
 function formatData(dataObj, usrString = "") {
   let article = $("<article></article");
+  article.addClass("search-results");
   let titleWrapper = $("<div></div>");
   titleWrapper.addClass("title-wrapper");
   let titleDiv = (usrString) ? $(`<div>Results for ${usrString}</div>`) : $("<div>Your Results</div>")
@@ -40,6 +41,7 @@ function formatData(dataObj, usrString = "") {
   titleWrapper.append(titleDiv);
   article.append(titleWrapper);
   let ul = $("<ul class='result-list'></ul>")
+  ul.addClass("result-list");
   dataObj.forEach(function(entry){
     let li = $("<li></li>");
     li.addClass("result-item translucent");
@@ -72,6 +74,12 @@ addForm.submit(async function (event) {
   // addDisplay[0].innerText = JSON.stringify(response);
   if (addDisplay.children().length == 0){
     addDisplay.append(formatedData);
+    let delay = 0;
+    $.each($('ul.result-list > li'), function(i, el) {
+      setTimeout(function() {
+        $(el).fadeIn();
+      }, i * 100);
+    });
   } else {
     addDisplay.children().first().replaceWith(formatedData)
   }
