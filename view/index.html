@@ -60,8 +60,18 @@
     <div class="row" id="row2">
       <div class="col-12 img-responsive" id="content-box2" class="default-box">
         <form id="address-form" class="form-style">
-          Enter An Address: <input class="form-input-text transparent" type="text" name="address-box" id="address" placeholder="Find new restaurants near you!">
-          <input type="submit" value="Go!" class="submit-button">
+          <div id="street-address-div">
+            <input class="form-input-text translucent" type="text" name="address-text" id="address-text" placeholder="Street Address" value="5614 22nd Ave NW">
+          </div>
+          <div id="city-state-zip-div">
+            <input class="form-input-text translucent" type="text" name="city-text" id="city-text" placeholder="City" value="Seattle">
+            <input class="form-input-text translucent" type="text" name="state-text" id="state-text" placeholder="State" value="WA">
+            <input class="form-input-text translucent" type="text" name="zip-text" id="zip-text" placeholder="Zip Code" value="98107">
+            <input class="form-input-text translucent" type="text" name="country-text" id="country-text" placeholder="USA" value="USA">
+          </div>
+          <div class="button-wrapper">
+            <input type="submit" value="Go!" class="submit-button">
+          </div>
         </form>
       </div>
       <div class="col-12 img-responsive" id="display-box2">

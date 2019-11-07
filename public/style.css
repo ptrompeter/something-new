@@ -53,6 +53,10 @@ body {
   color: white;
   border: 1px solid white;
 }
+
+.button-wrapper {
+  margin-top: 1rem;
+}
 .submit-button {
   background-color: rgba(0,0,0,0.5);
   color: white;
@@ -61,13 +65,58 @@ body {
   margin: .2rem;
 }
 
+#address-text {
+  margin-top: 1rem;
+  width: 100%;
+  /* max-width: 576px; */
+  max-width: 360px;
 
+}
+
+#city-state-zip-div {
+  width: 100%;
+  /* max-width: 576px; */
+  max-width: 360px;
+
+}
+
+
+#city-state-zip-div input {
+  text-align: center;
+  margin-right: 5%;
+  margin-top: 1rem;
+}
+#city-text {
+  width: 20%;
+  min-width: 5rem;
+}
+#state-text {
+  width: 10%;
+  min-width: 3rem;
+}
+#zip-text {
+  width: 15%;
+  min-width: 4rem;
+}
+#country-text {
+  width: 10%;
+  min-width: 3rem;
+}
 /* CSS for returned restuarants */
 ul li {
     /* float: right; */
     display: block;
     padding: 8px;
     list-style-type: none;
+}
+
+.title-wrapper {
+  min-height: 2rem;
+}
+
+.result-title {
+  float: right;
+  display: none;
 }
 
 .result-item {
@@ -110,6 +159,9 @@ ul li {
 /* MEDIA QUERY STYLING */
 @media(min-width: 576px){
   #blurb {
+    display: block;
+  }
+  .result-title {
     display: block;
   }
 }

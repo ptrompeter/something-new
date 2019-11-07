@@ -8,6 +8,12 @@ const display = $("#display-box");
 const addForm = $("#address-form");
 const addBox = $("#address");
 const addDisplay = $("#display-box2");
+const streetAddress = $("#address-text");
+const city = $("#city-text");
+const state = $("#state-text");
+const zipCode = $("#zipCode-text");
+const country = $("#country-text");
+
 
 //handler functions
 async function getList(zip = false, address = false) {
@@ -27,9 +33,12 @@ async function getList(zip = false, address = false) {
 
 function formatData(dataObj, usrString = "") {
   let article = $("<article></article");
+  let titleWrapper = $("<div></div>");
+  titleWrapper.addClass("title-wrapper");
   let titleDiv = (usrString) ? $(`<div>Results for ${usrString}</div>`) : $("<div>Your Results</div>")
   titleDiv.addClass("result-title");
-  article.append(titleDiv);
+  titleWrapper.append(titleDiv);
+  article.append(titleWrapper);
   let ul = $("<ul class='result-list'></ul>")
   dataObj.forEach(function(entry){
     let li = $("<li></li>");
@@ -54,10 +63,8 @@ zipForm.submit(async function (event) {
 
 addForm.submit(async function (event) {
   event.preventDefault();
-  console.log("addbox:", addBox);
-  let address
-  if (addBox[0].value) address = addBox[0].value;
-  console.log("Address before call:", address);
+  let address = `${streetAddress[0].value}, ${city[0].value}, ${state[0].value}, ${country[0].value}`
+  console.log("address:", address);
   let response = (address) ? await getList(false, address) : await getList();
   // let data = JSON.stringify(response);
   // console.log("data", data);
