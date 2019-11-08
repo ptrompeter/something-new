@@ -35,8 +35,9 @@ const bodyParser = require('body-parser');
 const fetch = require('node-fetch');
 const router = express.Router();
 dotenv.config();
-const port = process.env.DEV_PORT;
+const port = process.env.PROD_PORT;
 const geoApi = process.env.GEO_API;
+const dbLocation = process.env.DB_LOC;
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 //add the router
@@ -51,7 +52,7 @@ app.use('/', router);
 
 
 //configure db;
-mongoose.connect('mongodb://localhost/restaurants', {
+mongoose.connect(dbLocation, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   useCreateIndex: true
