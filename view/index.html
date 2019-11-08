@@ -17,11 +17,11 @@
 
 
 </head>
-<body>
+<body class="translucent">
 
   <!--Choosing a navbar Style -->
   <!--Always Expand -->
-  <nav class="navbar navbar-expand navbar-dark bg-dark">
+  <nav class="navbar navbar-expand navbar-dark translucent">
   <a class="navbar-brand" href="#">Someplace New</a>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample02" aria-controls="navbarsExample02" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
@@ -30,24 +30,46 @@
   <div class="collapse navbar-collapse" id="navbarsExample02">
     <ul class="navbar-nav mr-auto">
       <li class="nav-item active">
-        <a class="nav-link" href="#" id="game-link">Game<span class="sr-only">(current)</span></a>
+        <a class="nav-link" href="#" id="game-link">By Address<span class="sr-only">(current)</span></a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="#" id="some-link">Put a link here.</a>
+        <a class="nav-link" href="#" id="some-link">By Zipcode</a>
       </li>
     </ul>
+    <span id="blurb" class="navbar-text">
+      <i>Find new Seattle restaurants near you!</i>
+    </span>
   </div>
 </nav>
   <div class="container">
     <div class="row" id="row1">
-      <div class="col-12 img-responsive" id="content-box">
+      <div class="col-12 img-responsive" id="content-box" class="default-box">
         <form id="zip-form">
           Enter Zip Code: <input type="text" name="zipbox" id="zip">
-          <input type="submit" value="submit">
+          <input type="submit" value="Find New Restaurants By Zip Code" class="submit-button">
         </form>
       </div>
       <div class="col-12 img-responsive" id="display-box">
-        this page is in the view folder.
+      </div>
+    </div>
+    <div class="row" id="row2">
+      <div class="col-12 img-responsive" id="content-box2" class="default-box">
+        <form id="address-form" class="form-style">
+          <div id="street-address-div">
+            <input class="form-input-text translucent" type="text" name="address-text" id="address-text" placeholder="Street Address" value="5614 22nd Ave NW">
+          </div>
+          <div id="city-state-zip-div">
+            <input class="form-input-text translucent" type="text" name="city-text" id="city-text" placeholder="City" value="Seattle">
+            <input class="form-input-text translucent" type="text" name="state-text" id="state-text" placeholder="State" value="WA">
+            <input class="form-input-text translucent" type="text" name="zip-text" id="zip-text" placeholder="Zip Code" value="98107">
+            <input class="form-input-text translucent" type="text" name="country-text" id="country-text" placeholder="USA" value="USA">
+          </div>
+          <div class="button-wrapper">
+            <input type="submit" value="Go!" class="submit-button">
+          </div>
+        </form>
+      </div>
+      <div class="col-12 img-responsive" id="display-box2">
       </div>
     </div>
   </div>

@@ -1,0 +1,157 @@
+html {
+    background: url("https://images.unsplash.com/photo-1504544750208-dc0358e63f7f?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2475&q=80") no-repeat top center fixed black;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+    height: 100%;
+}
+
+body {
+    font-family: 'Palanquin', sans-serif;
+    color: white;
+    background-color: black;
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+}
+
+.container {
+  min-height: 100%;
+}
+
+/* HELPER CLASSES */
+.transparent {
+    background-color: rgb(0,0,0);
+    background-color: rgba(0,0,0,0);
+    width: 100%;
+}
+
+.translucent {
+    background-color: rgb(0,0,0);
+    background-color: rgba(0,0,0,0.5);
+}
+
+/* CSS for Address Form */
+.form-input-text {
+  color: white;
+  border: 1px solid white;
+}
+
+.button-wrapper {
+  margin-top: 1rem;
+}
+.submit-button {
+  background-color: rgba(0,0,0,0.5);
+  color: white;
+  border-radius: 1rem;
+  border: 1px solid white;
+  margin: .2rem;
+}
+
+#address-text {
+  margin-top: 1rem;
+  width: 100%;
+  max-width: 360px;
+
+}
+
+#city-state-zip-div {
+  width: 100%;
+  max-width: 360px;
+
+}
+
+
+#city-state-zip-div input {
+  text-align: center;
+  margin-right: 5%;
+  margin-top: 1rem;
+}
+#city-text {
+  width: 20%;
+  min-width: 5rem;
+}
+#state-text {
+  width: 10%;
+  min-width: 3rem;
+}
+#zip-text {
+  width: 15%;
+  min-width: 4rem;
+}
+#country-text {
+  width: 10%;
+  min-width: 3rem;
+}
+/* CSS for returned restuarants */
+.search-results ul li {
+    /* float: right; */
+    display: none;
+    padding: 8px;
+    list-style-type: none;
+}
+
+.title-wrapper {
+  min-height: 2rem;
+}
+
+.result-title {
+  float: right;
+  display: none;
+}
+
+.result-item {
+  margin: 8px;
+  border: 2px solid white;
+  border-radius: 5px;
+}
+
+.rest-name {
+  font-size: 1.5rem;
+}
+
+.rest-distance {
+  font-size: 0.8rem;
+}
+.distance-flag {
+  color: red;
+}
+
+
+/* ADDITIONAL STYLING BY ID */
+#navButton {
+    outline-color: white;
+}
+
+#row1 {
+  display: none;
+}
+
+/* ADDITIONAL NAVBAR STYLING */
+#blurb {
+  display: none;
+  font-size: .8rem;
+  float: right;
+  color: white;
+  background: none;
+  max-width: 150px;
+}
+
+/* MEDIA QUERY STYLING */
+@media(min-width: 576px){
+  #blurb {
+    display: block;
+  }
+  .result-title {
+    display: block;
+  }
+}
+@media(min-width: 758px) {
+  #blurb {
+    display: block;
+    font-size: 1rem;
+    max-width: 200px;
+
+  }
+}
