@@ -35,7 +35,7 @@ const bodyParser = require('body-parser');
 const fetch = require('node-fetch');
 const router = express.Router();
 dotenv.config();
-const port = process.env.PROD_PORT;
+const port = process.env.$PORT;
 const geoApi = process.env.GEO_API;
 const dbLocation = process.env.DB_LOC;
 app.use(bodyParser.json()); // support json encoded bodies
