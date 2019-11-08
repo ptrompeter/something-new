@@ -6,6 +6,25 @@
 //SAMPLE FUNCTIONING SODE REQUEST FOR FOOD TRUCKS IN SEATTLE OPENED WITHIN THE LAST YEAR:
 //https://data.seattle.gov/resource/wnbq-64tb.json?naics_code=722330&city_state_zip=SEATTLE&$where=license_start_date>'2018-09-24T16:00:00'
 
+/*
+example of restaurant data (for schema formatting):
+{
+  "business_legal_name":"ABACUS HOSPITALITY LLC",
+  "trade_name":"FRESH TASTE CAFE",
+  "ownership_type":"LLC - Single Member",
+  "naics_code":"722513",
+  "naics_description":"Limited-Service Restaurants",
+  "license_start_date":"2019-06-01T00:00:00.000",
+  "street_address":"700 STEWART ST",
+  "city_state_zip":"SEATTLE",
+  "state":"WA",
+  "zip":"98101",
+  "business_phone":"360-553-3087",
+  "city_account_number":"0008291010752342",
+  "ubi":"603416636"
+}
+*/
+
 const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
@@ -30,24 +49,6 @@ app.use(express.static(__dirname + '/public'));
 app.use('/', router);
 // app.listen(process.env.port || 3000);
 
-/*
-example of restaurant data (for schema formatting):
-{
-  "business_legal_name":"ABACUS HOSPITALITY LLC",
-  "trade_name":"FRESH TASTE CAFE",
-  "ownership_type":"LLC - Single Member",
-  "naics_code":"722513",
-  "naics_description":"Limited-Service Restaurants",
-  "license_start_date":"2019-06-01T00:00:00.000",
-  "street_address":"700 STEWART ST",
-  "city_state_zip":"SEATTLE",
-  "state":"WA",
-  "zip":"98101",
-  "business_phone":"360-553-3087",
-  "city_account_number":"0008291010752342",
-  "ubi":"603416636"
-}
-*/
 
 //configure db;
 mongoose.connect('mongodb://localhost/restaurants', {
@@ -61,7 +62,7 @@ db.once('open', function(){
   console.log('hit open!  Thats good, right?');
 });
 
-//configure schema
+//configure schema for restaurants
 const Schema = mongoose.Schema;
 const restaurantSchema = new Schema({
   business_legal_name: String,
@@ -82,7 +83,7 @@ const restaurantSchema = new Schema({
 });
 restaurantSchema.index({trade_name: 1, license_start_date: 1, zip: 1, ubi: 1});
 
-//writing a schema to hold the date of last update from Seattle
+//Configure schema to hold the date of last update from Seattle
 const lastupdateSchema = new Schema ({
   updated: Date,
 })
@@ -143,6 +144,13 @@ app.listen(port, (err) => {
 
 
 //DATABASE FUNCTIONS
+
+//Return a date object for previous years (defaults to one)
+function oldDate(numOfYears = 1){
+  let time = new Date();
+  time.setMonth(time.getMonth() - 12 * numOfYears);
+  return time;
+}
 
 //Write a generalized function for db queries
 async function dbQuery(model, query = {}, message = false) {
@@ -209,9 +217,10 @@ async function callSeattle() {
 }
 
 //Return a list of restaurants sorted by distance from user coordinates
-async function getRestaurantsByDistance(locationObj){
+async function getRestaurantsByDistance(locationObj, years = 1){
   console.log("locationObj:", locationObj);
-  const allRestaurants = await dbQuery(Restaurant, {});
+  const newBusinessDate = oldDate(years);
+  const allRestaurants = await dbQuery(Restaurant, {license_start_date: { $gte: newBusinessDate }});
   let outputArray = [];
   allRestaurants.forEach(function(restaurant) {
     let distance = calcDistanceInKm(restaurant, locationObj)
@@ -225,6 +234,22 @@ async function getRestaurantsByDistance(locationObj){
   // console.log(outputArray);
   return outputArray;
 }
+
+//remove duplicate entries from the database
+async function removeDupes() {
+  let ubiHash = {}
+  let dbReturn = await dbQuery(Restaurant, {}, "Trying to get All restaurants");
+  dbReturn.forEach(function(restaurant) {
+    ubiHash[restaurant.ubi] = (ubiHash[restaurant.ubi]) ? ubiHash[restaurant.ubi] + 1 : 1;
+  })
+  for (let [key, value] of Object.entries(ubiHash)) {
+    for (let i = 0; i < value -1; i++) {
+      await Restaurant.deleteOne({ubi: key});
+    }
+  }
+  return ubiHash;
+}
+
 
 //API CALL FUNCTIONS
 
@@ -410,6 +435,16 @@ testWrapper()
 
 
 //TEST CODE BELOW
+
+//This function queries restaurants more than a year old to confirm query formatting
+// async function testGetOldRestaurants(){
+//   const newBusinessDate = oldDate();
+//   const allRestaurants = await dbQuery(Restaurant, {license_start_date: { $lte: newBusinessDate }});
+//   allRestaurants.forEach(function(restaurant){
+//     console.log(restaurant);
+//   });
+// }
+// testGetOldRestaurants();
 
 /*
 I'm keeping my homemade filter function for now (below), in case I decide to implement

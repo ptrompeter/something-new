@@ -68,10 +68,7 @@ addForm.submit(async function (event) {
   let address = `${streetAddress[0].value}, ${city[0].value}, ${state[0].value}, ${country[0].value}`
   console.log("address:", address);
   let response = (address) ? await getList(false, address) : await getList();
-  // let data = JSON.stringify(response);
-  // console.log("data", data);
   let formatedData = formatData(response, address);
-  // addDisplay[0].innerText = JSON.stringify(response);
   if (addDisplay.children().length == 0){
     addDisplay.append(formatedData);
     let delay = 0;
