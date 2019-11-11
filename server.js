@@ -304,7 +304,7 @@ async function geoEncode(restaurant = false, string = false) {
   let headers = {
     "async": true,
     "crossDomain": true,
-    "url": url,
+    // "url": url,
     "method": "GET",
     // "format": "json"
   }
