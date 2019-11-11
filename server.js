@@ -301,16 +301,17 @@ async function geoEncode(restaurant = false, string = false) {
   let url = await geoApi.replace("SEARCH_STRING", address);
   console.log("HERE'S THE URL TO GEOENCODE:", url);
   let init = {};
-  // let headers = {
-  //   "async": true,
-  //   "crossDomain": true,
-  //   // "url": url,
-  //   "method": "GET",
-  //   // "format": "json"
-  // }
-  // init.headers = headers;
+  let headers = {
+    "async": true,
+    "crossDomain": true,
+    // "url": url,
+    "method": "GET",
+    'Host': 'us1.locationiq.com',
+    "format": "json"
+  }
+  init.headers = headers;
   try {
-    let response = await fetch(url);
+    let response = await fetch(url, init);
     let output = await response.json();
     // console.log("this is the output log in geoEncode", output);
     return output;
