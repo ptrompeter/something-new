@@ -298,7 +298,7 @@ and return search results with lat and long from an api.*/
 async function geoEncode(restaurant = false, string = false) {
   let address;
   address = (string) ? string : restaurant.street_address + ", " + restaurant.city_state_zip + ", " + restaurant.state + ", " + restaurant.zip;
-  let url = geoApi.replace("SEARCH_STRING", address);
+  let url = await geoApi.replace("SEARCH_STRING", address);
   console.log("HERE'S THE URL TO GEOENCODE:", url);
   let init = {};
   let headers = {
