@@ -306,10 +306,12 @@ async function geoEncode(restaurant = false, string = false) {
     "crossDomain": true,
     // "url": url,
     "method": "GET",
-    'Host': 'us1.locationiq.com',
-    "format": "json"
+    "Host": "us1.locationiq.com",
+    // "format": "json"
   }
   init.headers = headers;
+  let debugObj =new fetch.Request(url, init);
+  console.log("DEBUGOBJ:", debugObj);
   try {
     let response = await fetch(url, init);
     let output = await response.json();
