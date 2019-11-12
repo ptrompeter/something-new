@@ -38,6 +38,7 @@ dotenv.config();
 const port = process.env.PORT;
 const geoApi = process.env.GEO_API;
 const dbLocation = process.env.DB_LOC;
+const urlObj = require('url');
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 //add the router
@@ -299,7 +300,9 @@ async function geoEncode(restaurant = false, string = false) {
   let address;
   address = (string) ? string : restaurant.street_address + ", " + restaurant.city_state_zip + ", " + restaurant.state + ", " + restaurant.zip;
   let url = await geoApi.replace("SEARCH_STRING", address);
-  console.log("HERE'S THE URL TO GEOENCODE:", url);
+  let encodedURL = new URL(url);
+  console.log("ENCODED URL:", encodedURL);
+  console.log("HERE'S THE URL TO GEOENCODE:", encodedURL.href);
   let init = {};
   let headers = {
     "async": true,
@@ -310,10 +313,10 @@ async function geoEncode(restaurant = false, string = false) {
     // "format": "json"
   }
   init.headers = headers;
-  let debugObj =new fetch.Request(url, init);
+  let debugObj =new fetch.Request(encodedURL.href, init);
   console.log("DEBUGOBJ:", debugObj);
   try {
-    let response = await fetch(url, init);
+    let response = await fetch(encodedURL.href, init);
     let output = await response.json();
     // console.log("this is the output log in geoEncode", output);
     return output;
