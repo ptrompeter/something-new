@@ -298,7 +298,7 @@ async function sodaCall(zipcode=false, lastUpdate = false) {
 and return search results with lat and long from an api.*/
 async function geoEncode(restaurant = false, string = false) {
   let address;
-  address = (string) ? string : require('querystring').escape(restaurant.street_address + ", " + restaurant.city_state_zip + ", " + restaurant.state + ", " + restaurant.zip);
+  address = (string) ? string : require('querystring').escape(`${restaurant.street_address}, ${restaurant.city_state_zip}, ${restaurant.state}, ${restaurant.zip}`);
   let url = await geoApi.replace("SEARCH_STRING", address);
   console.log("URL to be encoded:", url);
   console.log("Trying to get url type:", typeof url);
