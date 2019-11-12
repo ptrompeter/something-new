@@ -300,6 +300,8 @@ async function geoEncode(restaurant = false, string = false) {
   let address;
   address = (string) ? string : require('querystring').escape(restaurant.street_address + ", " + restaurant.city_state_zip + ", " + restaurant.state + ", " + restaurant.zip);
   let url = await geoApi.replace("SEARCH_STRING", address);
+  console.log("URL to be encoded:", url);
+  console.log("Trying to get url type:", typeof url);
   let encodedURL = new URL(url);
   console.log("ENCODED URL:", encodedURL);
   console.log("HERE'S THE URL TO GEOENCODE:", encodedURL.href);
