@@ -118,6 +118,9 @@ body {
   color: red;
 }
 
+.page-control{
+  margin-right: 10px;
+}
 
 /* ADDITIONAL STYLING BY ID */
 #navButton {

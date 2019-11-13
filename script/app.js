@@ -36,18 +36,19 @@ function selectFive(array, idx = 0) {
   return array.slice(idx, idx + 5)
 }
 
-function formatData(dataObj, usrString = "") {
-  let article = $("<article></article");
-  article.addClass("search-results");
-  let titleWrapper = $("<div></div>");
-  titleWrapper.addClass("title-wrapper");
-  let titleDiv = (usrString) ? $(`<div>Results for ${usrString}</div>`) : $("<div>Your Results</div>")
-  titleDiv.addClass("result-title");
-  titleWrapper.append(titleDiv);
-  article.append(titleWrapper);
-  let ul = $("<ul class='result-list'></ul>")
+function addControls(){
+  let controlDiv = $("<div id='control-div' idx=0></div>");
+  let prev = $("<a href='#' class='page-control' id='prev'>last page</a>");
+  let next = $("<a href='#' class='page-control' id='next'>next page</a>");
+  controlDiv.append(prev);
+  controlDiv.append(next);
+  return controlDiv;
+}
+
+function makeFormattedList(array) {
+  let ul = $("<ul class='result-list'></ul>");
   ul.addClass("result-list");
-  dataObj.forEach(function(entry){
+  array.forEach(function(entry){
     let li = $("<li></li>");
     li.addClass("result-item translucent");
     li.append($(`<div class='rest-name'>${entry.restaurant.trade_name}</div>`));
@@ -58,7 +59,22 @@ function formatData(dataObj, usrString = "") {
     li.append($(`<div class='rest-tel'>${entry.restaurant.business_phone}</div>`));
     ul.append(li);
   })
-  article.append(ul);
+  return ul;
+}
+
+function formatData(dataObj, usrString = "") {
+  let article = $("<article></article");
+  article.addClass("search-results");
+  let titleWrapper = $("<div></div>");
+  titleWrapper.addClass("title-wrapper");
+  let titleDiv = (usrString) ? $(`<div>Results for ${usrString}</div>`) : $("<div>Your Results</div>")
+  titleDiv.addClass("result-title");
+  titleWrapper.append(titleDiv);
+  article.append(titleWrapper);
+  let controls = addControls();
+  article.append(controls);
+  let formattedList = makeFormattedList(dataObj);
+  article.append(formattedList);
   return article
 }
 //event listeners
@@ -73,9 +89,9 @@ addForm.submit(async function (event) {
   let address = `${streetAddress[0].value}, ${city[0].value}, ${state[0].value}, ${country[0].value}`
   console.log("address:", address);
   data = (address) ? await getList(false, address) : await getList();
-  let formatedData = formatData(selectFive(data), address);
+  let formattedData = formatData(selectFive(data), address);
   if (addDisplay.children().length == 0){
-    addDisplay.append(formatedData);
+    addDisplay.append(formattedData);
     let delay = 0;
     $.each($('ul.result-list > li'), function(i, el) {
       setTimeout(function() {
@@ -83,6 +99,6 @@ addForm.submit(async function (event) {
       }, i * 100);
     });
   } else {
-    addDisplay.children().first().replaceWith(formatedData)
+    addDisplay.children().first().replaceWith(formattedData)
   }
 });
