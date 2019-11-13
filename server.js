@@ -448,6 +448,31 @@ testWrapper()
 
 //TEST CODE BELOW
 
+// async function geoEncode(restaurant = false, string = false) {
+//   let address;
+//   address = (string) ? string : require('querystring').escape(`${restaurant.street_address}, ${restaurant.city_state_zip}, ${restaurant.state}, ${restaurant.zip}`);
+//   let url = await geoApi.replace("SEARCH_STRING", address);
+//   let encodedURL = new URL(url);
+//   let init = {};
+//   let headers = {
+//     "async": true,
+//     "crossDomain": true,
+//     "method": "GET",
+//     "Host": "us1.locationiq.com",
+//   }
+//   init.headers = headers;
+//   try {
+//     let response = await fetch(encodedURL.href, init);
+//     let output = await response.json();
+//     return output;
+//   } catch(err){
+//     console.log("this log an error in geoEncode", err);
+//   }
+// }
+//
+
+
+
 //This function queries restaurants more than a year old to confirm query formatting
 // async function testGetOldRestaurants(){
 //   const newBusinessDate = oldDate();
