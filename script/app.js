@@ -13,6 +13,7 @@ const city = $("#city-text");
 const state = $("#state-text");
 const zipCode = $("#zipCode-text");
 const country = $("#country-text");
+let data;
 
 
 //handler functions
@@ -29,6 +30,10 @@ async function getList(zip = false, address = false) {
   const response = await fetch('/', init);
   const parsedResponse = await response.json();
   return parsedResponse;
+}
+
+function selectFive(array, idx = 0) {
+  return array.slice(idx, idx + 5)
 }
 
 function formatData(dataObj, usrString = "") {
@@ -67,8 +72,8 @@ addForm.submit(async function (event) {
   event.preventDefault();
   let address = `${streetAddress[0].value}, ${city[0].value}, ${state[0].value}, ${country[0].value}`
   console.log("address:", address);
-  let response = (address) ? await getList(false, address) : await getList();
-  let formatedData = formatData(response, address);
+  data = (address) ? await getList(false, address) : await getList();
+  let formatedData = formatData(selectFive(data), address);
   if (addDisplay.children().length == 0){
     addDisplay.append(formatedData);
     let delay = 0;
