@@ -77,6 +77,14 @@ function formatData(dataObj, usrString = "") {
   article.append(formattedList);
   return article
 }
+
+function revealList(){
+  $.each($('ul.result-list > li'), function(i, el) {
+    setTimeout(function() {
+      $(el).fadeIn();
+    }, i * 100);
+  });
+}
 //event listeners
 zipForm.submit(async function (event) {
   event.preventDefault();
@@ -93,12 +101,9 @@ addForm.submit(async function (event) {
   if (addDisplay.children().length == 0){
     addDisplay.append(formattedData);
     let delay = 0;
-    $.each($('ul.result-list > li'), function(i, el) {
-      setTimeout(function() {
-        $(el).fadeIn();
-      }, i * 100);
-    });
+    revealList();
   } else {
-    addDisplay.children().first().replaceWith(formattedData)
+    addDisplay.children().first().replaceWith(formattedData);
+    revealList();
   }
 });
