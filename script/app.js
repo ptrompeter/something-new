@@ -13,6 +13,7 @@ const city = $("#city-text");
 const state = $("#state-text");
 const zipCode = $("#zipCode-text");
 const country = $("#country-text");
+let data;
 
 
 //handler functions
@@ -31,18 +32,24 @@ async function getList(zip = false, address = false) {
   return parsedResponse;
 }
 
-function formatData(dataObj, usrString = "") {
-  let article = $("<article></article");
-  article.addClass("search-results");
-  let titleWrapper = $("<div></div>");
-  titleWrapper.addClass("title-wrapper");
-  let titleDiv = (usrString) ? $(`<div>Results for ${usrString}</div>`) : $("<div>Your Results</div>")
-  titleDiv.addClass("result-title");
-  titleWrapper.append(titleDiv);
-  article.append(titleWrapper);
-  let ul = $("<ul class='result-list'></ul>")
+function selectFive(array, idx = 0) {
+  return array.slice(idx, idx + 5)
+}
+
+function addControls(){
+  let controlDiv = $("<div id='control-div'></div>");
+  controlDiv.prop("idx", "0");
+  let prev = $("<a href='#' class='page-control' id='prev'>last page</a>");
+  let next = $("<a href='#' class='page-control' id='next'>next page</a>");
+  controlDiv.append(prev);
+  controlDiv.append(next);
+  return controlDiv;
+}
+
+function makeFormattedList(array) {
+  let ul = $("<ul class='result-list'></ul>");
   ul.addClass("result-list");
-  dataObj.forEach(function(entry){
+  array.forEach(function(entry){
     let li = $("<li></li>");
     li.addClass("result-item translucent");
     li.append($(`<div class='rest-name'>${entry.restaurant.trade_name}</div>`));
@@ -53,9 +60,42 @@ function formatData(dataObj, usrString = "") {
     li.append($(`<div class='rest-tel'>${entry.restaurant.business_phone}</div>`));
     ul.append(li);
   })
-  article.append(ul);
+  return ul;
+}
+
+function formatData(dataObj, usrString = "") {
+  let article = $("<article></article");
+  article.addClass("search-results");
+  let titleWrapper = $("<div></div>");
+  titleWrapper.addClass("title-wrapper");
+  let titleDiv = (usrString) ? $(`<div>${usrString}</div>`) : $("<div>Your Results</div>")
+  titleDiv.addClass("result-title");
+  titleWrapper.append(titleDiv);
+  article.append(titleWrapper);
+  let controls = addControls();
+  article.append(controls);
+  let formattedList = makeFormattedList(dataObj);
+  article.append(formattedList);
   return article
 }
+
+//Reveal search results with cascade effect
+function revealList(){
+  $.each($('ul.result-list > li'), function(i, el) {
+    setTimeout(function() {
+      $(el).fadeIn();
+    }, i * 100);
+  });
+}
+
+//Add or remove disabled class to controls depending upon index.
+function checkControls(idx = 0) {
+  (idx <= 0) ? $("#prev").prop("disabled", "true") : $("#prev").prop("disabled", "false");
+  (idx <= 0) ? $("#prev").addClass("disabled") : $("#prev").removeClass("disabled");
+  (data.length -1 - idx <= 5) ? $("#next").prop("disabled", "true") : $("#next").prop("disabled", "false");
+  (data.length -1 - idx <= 5) ? $("#next").addClass("disabled", "true") : $("#next").removeClass("disabled", "false");
+}
+
 //event listeners
 zipForm.submit(async function (event) {
   event.preventDefault();
@@ -65,19 +105,49 @@ zipForm.submit(async function (event) {
 
 addForm.submit(async function (event) {
   event.preventDefault();
-  let address = `${streetAddress[0].value}, ${city[0].value}, ${state[0].value}, ${country[0].value}`
+  let address = `Results for ${streetAddress[0].value}, ${city[0].value}, ${state[0].value}, ${country[0].value}`
   console.log("address:", address);
-  let response = (address) ? await getList(false, address) : await getList();
-  let formatedData = formatData(response, address);
+  data = (address) ? await getList(false, address) : await getList();
+  let formattedData = formatData(selectFive(data), address);
   if (addDisplay.children().length == 0){
-    addDisplay.append(formatedData);
+    addDisplay.append(formattedData);
     let delay = 0;
-    $.each($('ul.result-list > li'), function(i, el) {
-      setTimeout(function() {
-        $(el).fadeIn();
-      }, i * 100);
-    });
+    revealList();
   } else {
-    addDisplay.children().first().replaceWith(formatedData)
+    addDisplay.children().first().replaceWith(formattedData);
+    checkControls();
+    revealList();
   }
+});
+
+
+$("#display-box2").on('click', "#next", function(event){
+  event.preventDefault();
+  if ($("#next").prop("disabled") == "true") return false;
+  let newList;
+  let idx = $("#control-div").prop("idx");
+  idx = parseInt(idx);
+  if (data.length - idx -1 > 5) idx += 5;
+  if (idx < data.length - 1) {
+    checkControls(idx);
+    newList = (data.length - idx - 1 >= 5) ? selectFive(data, idx): data.slice(idx);
+    $("#control-div").prop("idx", idx.toString());
+    $(".result-list").replaceWith(makeFormattedList(newList));
+    revealList();
+  }
+});
+
+$("#display-box2").on('click', "#prev", function(event){
+  event.preventDefault();
+  if ($("#prev").prop("disabled") == "true") return false;
+  let newList;
+  let controlDiv = $("#control-div");
+  let idx = controlDiv.prop("idx");
+  idx = parseInt(idx);
+  idx = (idx > 4) ? idx - 5 : 0;
+  checkControls(idx);
+  newList = (data.length - idx - 1 >= 5) ? selectFive(data, idx): data.slice(idx);
+  controlDiv.prop("idx", idx.toString());
+  $(".result-list").replaceWith(makeFormattedList(newList));
+  revealList();
 });
