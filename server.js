@@ -302,7 +302,8 @@ async function geoEncode(restaurant = false, string = false) {
   address = (string) ? string : require('querystring').escape(`${restaurant.street_address}, ${restaurant.city_state_zip}, ${restaurant.state}, ${restaurant.zip}`);
   let url = await geoApi.replace("SEARCH_STRING", address);
   url = utf8.encode(url);
-  console.log("URL to be encoded:", url);
+  console.log("trimmed url:", url.trim());
+  console.log("URL to be encoded:", url.trim());
   console.log("Trying to get url type:", typeof url);
   let encodedURL = new URL(url);
   console.log("ENCODED URL:", encodedURL);
@@ -317,7 +318,7 @@ async function geoEncode(restaurant = false, string = false) {
     // "format": "json"
   }
   init.headers = headers;
-  let debugObj =new fetch.Request(encodedURL.href, init);
+  let debugObj = new fetch.Request(encodedURL.href, init);
   console.log("DEBUGOBJ:", debugObj);
   try {
     let response = await fetch(encodedURL.href, init);
