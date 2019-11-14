@@ -38,7 +38,7 @@ dotenv.config();
 const port = process.env.PORT;
 const geoApi = process.env.GEO_API;
 const dbLocation = process.env.DB_LOC;
-const urlObj = require('url');
+const { URL } = require('url');
 const utf8 = require('utf8');
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
