@@ -37,7 +37,7 @@ function selectFive(array, idx = 0) {
 }
 
 function addControls(){
-  let controlDiv = $("<div id='control-div' idx=0></div>");
+  let controlDiv = $("<div id='control-div' idx='0'></div>");
   let prev = $("<a href='#' class='page-control' id='prev'>last page</a>");
   let next = $("<a href='#' class='page-control' id='next'>next page</a>");
   controlDiv.append(prev);
@@ -78,6 +78,7 @@ function formatData(dataObj, usrString = "") {
   return article
 }
 
+//Reveal search results with cascade effect
 function revealList(){
   $.each($('ul.result-list > li'), function(i, el) {
     setTimeout(function() {
@@ -85,6 +86,13 @@ function revealList(){
     }, i * 100);
   });
 }
+
+//Add or remove disabled class to controls depending upon index.
+function checkControls(idx = 0) {
+  (idx <= 0) ? $("#prev").addClass("disabled") : $("#prev").removeClass("disabled");
+  (data.length -1 - idx <= 5) ? $("#next").addClass("disabled") : $("#next").removeClass("disabled");
+}
+
 //event listeners
 zipForm.submit(async function (event) {
   event.preventDefault();
@@ -104,6 +112,43 @@ addForm.submit(async function (event) {
     revealList();
   } else {
     addDisplay.children().first().replaceWith(formattedData);
+    checkControls();
     revealList();
   }
+});
+
+
+$("#display-box2").on('click', "#next", function(event){
+  if ($("#next").hasClass("disabled")) return false;
+  let newList;
+  let idx = $("#control-div").attr("idx");
+  idx = parseInt(idx);
+  console.log("idx from control-div:", idx);
+  console.log("idx type:", typeof idx);
+  if (data.length - idx -1 > 5) idx += 5;
+  console.log("BREAKING HERE? idx < data.length -1?:", idx < data.length - 1)
+  if (idx < data.length - 1) {
+    console.log("INSIDE EVENT LISTENER CONDITIONAL");
+    console.log("idx to insert:", idx)
+    checkControls(idx);
+    $("#control-div").attr("idx", idx.toString());
+    console.log("idx after insert:", $("#control-div").attr("idx"));
+    newList = (data.length - idx - 1 >= 5) ? selectFive(data, idx): data.slice(idx);
+    addDisplay.children().first().replaceWith(formatData(newList));
+    revealList();
+  }
+});
+
+$("#display-box2").on('click', "#prev", function(event){
+  if ($("#prev").hasClass("disabled")) return false;
+  let newList;
+  let controlDiv = $("#control-div");
+  let idx = controlDiv.attr("idx");
+  idx = parseInt(idx);
+  idx = (idx > 4) ? idx - 5 : 0;
+  checkControls(idx);
+  controlDiv.attr("idx", idx.toString());
+  newList = (data.length - idx - 1 >= 5) ? selectFive(data, idx): data.slice(idx);
+  addDisplay.children().first().replaceWith(formatData(newList));
+  revealList();
 });
