@@ -120,6 +120,11 @@ body {
 
 .page-control{
   margin-right: 10px;
+  color: white;
+}
+
+.page-control.disabled {
+  color: gray;
 }
 
 /* ADDITIONAL STYLING BY ID */

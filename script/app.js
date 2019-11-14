@@ -91,7 +91,9 @@ function revealList(){
 //Add or remove disabled class to controls depending upon index.
 function checkControls(idx = 0) {
   (idx <= 0) ? $("#prev").prop("disabled", "true") : $("#prev").prop("disabled", "false");
+  (idx <= 0) ? $("#prev").addClass("disabled") : $("#prev").removeClass("disabled");
   (data.length -1 - idx <= 5) ? $("#next").prop("disabled", "true") : $("#next").prop("disabled", "false");
+  (data.length -1 - idx <= 5) ? $("#next").addClass("disabled", "true") : $("#next").removeClass("disabled", "false");
 }
 
 //event listeners
