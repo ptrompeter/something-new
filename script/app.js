@@ -105,10 +105,10 @@ zipForm.submit(async function (event) {
 
 addForm.submit(async function (event) {
   event.preventDefault();
-  let address = `Results for ${streetAddress[0].value}, ${city[0].value}, ${state[0].value}, ${country[0].value}`
+  let address = `${streetAddress[0].value}, ${city[0].value}, ${state[0].value}, ${country[0].value}`
   console.log("address:", address);
   data = (address) ? await getList(false, address) : await getList();
-  let formattedData = formatData(selectFive(data), address);
+  let formattedData = formatData(selectFive(data), `Results for ${address}`);
   if (addDisplay.children().length == 0){
     addDisplay.append(formattedData);
     let delay = 0;
