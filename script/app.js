@@ -37,7 +37,8 @@ function selectFive(array, idx = 0) {
 }
 
 function addControls(){
-  let controlDiv = $("<div id='control-div' idx='0'></div>");
+  let controlDiv = $("<div id='control-div'></div>");
+  controlDiv.prop("idx", "0");
   let prev = $("<a href='#' class='page-control' id='prev'>last page</a>");
   let next = $("<a href='#' class='page-control' id='next'>next page</a>");
   controlDiv.append(prev);
@@ -67,7 +68,7 @@ function formatData(dataObj, usrString = "") {
   article.addClass("search-results");
   let titleWrapper = $("<div></div>");
   titleWrapper.addClass("title-wrapper");
-  let titleDiv = (usrString) ? $(`<div>Results for ${usrString}</div>`) : $("<div>Your Results</div>")
+  let titleDiv = (usrString) ? $(`<div>${usrString}</div>`) : $("<div>Your Results</div>")
   titleDiv.addClass("result-title");
   titleWrapper.append(titleDiv);
   article.append(titleWrapper);
@@ -89,8 +90,8 @@ function revealList(){
 
 //Add or remove disabled class to controls depending upon index.
 function checkControls(idx = 0) {
-  (idx <= 0) ? $("#prev").addClass("disabled") : $("#prev").removeClass("disabled");
-  (data.length -1 - idx <= 5) ? $("#next").addClass("disabled") : $("#next").removeClass("disabled");
+  (idx <= 0) ? $("#prev").prop("disabled", "true") : $("#prev").prop("disabled", "false");
+  (data.length -1 - idx <= 5) ? $("#next").prop("disabled", "true") : $("#next").prop("disabled", "false");
 }
 
 //event listeners
@@ -102,7 +103,7 @@ zipForm.submit(async function (event) {
 
 addForm.submit(async function (event) {
   event.preventDefault();
-  let address = `${streetAddress[0].value}, ${city[0].value}, ${state[0].value}, ${country[0].value}`
+  let address = `Results for ${streetAddress[0].value}, ${city[0].value}, ${state[0].value}, ${country[0].value}`
   console.log("address:", address);
   data = (address) ? await getList(false, address) : await getList();
   let formattedData = formatData(selectFive(data), address);
@@ -119,36 +120,32 @@ addForm.submit(async function (event) {
 
 
 $("#display-box2").on('click', "#next", function(event){
-  if ($("#next").hasClass("disabled")) return false;
+  event.preventDefault();
+  if ($("#next").prop("disabled") == "true") return false;
   let newList;
-  let idx = $("#control-div").attr("idx");
+  let idx = $("#control-div").prop("idx");
   idx = parseInt(idx);
-  console.log("idx from control-div:", idx);
-  console.log("idx type:", typeof idx);
   if (data.length - idx -1 > 5) idx += 5;
-  console.log("BREAKING HERE? idx < data.length -1?:", idx < data.length - 1)
   if (idx < data.length - 1) {
-    console.log("INSIDE EVENT LISTENER CONDITIONAL");
-    console.log("idx to insert:", idx)
     checkControls(idx);
-    $("#control-div").attr("idx", idx.toString());
-    console.log("idx after insert:", $("#control-div").attr("idx"));
     newList = (data.length - idx - 1 >= 5) ? selectFive(data, idx): data.slice(idx);
-    addDisplay.children().first().replaceWith(formatData(newList));
+    $("#control-div").prop("idx", idx.toString());
+    $(".result-list").replaceWith(makeFormattedList(newList));
     revealList();
   }
 });
 
 $("#display-box2").on('click', "#prev", function(event){
-  if ($("#prev").hasClass("disabled")) return false;
+  event.preventDefault();
+  if ($("#prev").prop("disabled") == "true") return false;
   let newList;
   let controlDiv = $("#control-div");
-  let idx = controlDiv.attr("idx");
+  let idx = controlDiv.prop("idx");
   idx = parseInt(idx);
   idx = (idx > 4) ? idx - 5 : 0;
   checkControls(idx);
-  controlDiv.attr("idx", idx.toString());
   newList = (data.length - idx - 1 >= 5) ? selectFive(data, idx): data.slice(idx);
-  addDisplay.children().first().replaceWith(formatData(newList));
+  controlDiv.prop("idx", idx.toString());
+  $(".result-list").replaceWith(makeFormattedList(newList));
   revealList();
 });
