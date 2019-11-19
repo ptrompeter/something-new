@@ -430,3 +430,5 @@ testWrapper()
 .catch(function(err){
   console.log("I'm an error log in testWapper's catch", err);
 });
+
+console.log("Hash of Dupes:", removeDupes());
