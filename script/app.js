@@ -8,11 +8,11 @@ const display = $("#display-box");
 const addForm = $("#address-form");
 const addBox = $("#address");
 const addDisplay = $("#display-box2");
-const streetAddress = $("#address-text");
-const city = $("#city-text");
-const state = $("#state-text");
-const zipCode = $("#zipCode-text");
-const country = $("#country-text");
+// const streetAddress = $("#address-text");
+// const city = $("#city-text");
+// const state = $("#state-text");
+// const zipCode = $("#zipCode-text");
+// const country = $("#country-text");
 let data;
 
 
@@ -105,7 +105,11 @@ zipForm.submit(async function (event) {
 
 addForm.submit(async function (event) {
   event.preventDefault();
-  let address = `${streetAddress[0].value}, ${city[0].value}, ${state[0].value}, ${country[0].value}`
+  let values = {}
+$.each($('#address-form').serializeArray(), function(i, field) {
+    values[field.name] = field.value;
+});
+  let address = `${values["address-text"]}, ${values["city-text"]}, ${values["state-text"]}, ${values["zip-text"]}, ${values["country-text"]}`
   console.log("address:", address);
   data = (address) ? await getList(false, address) : await getList();
   let formattedData = formatData(selectFive(data), `Results for ${address}`);
