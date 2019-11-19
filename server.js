@@ -38,8 +38,16 @@ dotenv.config();
 const port = process.env.PORT;
 const geoApi = process.env.GEO_API;
 const dbLocation = process.env.DB_LOC;
+const geoHost = process.env.GEO_API_HOST;
+const geoSearch = process.env.GEO_API_SEARCH;
+const geoKey = process.env.GEO_API_KEY;
+const geoFormat = process.env.GEO_API_FORMAT;
+const geoSearchString = process.env.GEO_API_SEARCH_STRING;
+
+
 const { URL } = require('url');
 const utf8 = require('utf8');
+const querystring = require('querystring')
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 //add the router
@@ -299,11 +307,12 @@ async function sodaCall(zipcode=false, lastUpdate = false) {
 and return search results with lat and long from an api.*/
 async function geoEncode(restaurant = false, string = false) {
   let address;
-  address = (string) ? string : require('querystring').escape(`${restaurant.street_address}, ${restaurant.city_state_zip}, ${restaurant.state}, ${restaurant.zip}`);
+  address = (string) ? string : querystring.escape(`${restaurant.street_address}, ${restaurant.city_state_zip}, ${restaurant.state}, ${restaurant.zip}`);
   let url = await geoApi.replace("SEARCH_STRING", address);
   url = utf8.encode(url);
-  console.log("trimmed url:", url.trim());
-  console.log("URL to be encoded:", url.trim());
+  url = url.trim();
+  console.log("URL to be encoded:", url);
+  console.log("parsed querystring:", querystring.parse(url));
   console.log("Trying to get url type:", typeof url);
   let encodedURL = new URL(url);
   console.log("ENCODED URL:", encodedURL);
