@@ -312,7 +312,8 @@ async function geoEncode(restaurant = false, string = false) {
   url = utf8.encode(url);
   url = url.trim();
   console.log("URL to be encoded:", url);
-  console.log("parsed querystring:", querystring.parse(url));
+  let parsedUrl = querystring.parse(url);
+  console.log("parsed querystring:", parsedUrl);
   console.log("Trying to get url type:", typeof url);
   let encodedURL = new URL(url);
   console.log("ENCODED URL:", encodedURL);
