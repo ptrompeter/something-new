@@ -207,6 +207,7 @@ async function callSeattle() {
   }
   if (updateNeeded && !firstUpdate){
     response = await sodaCall(false, updateReturn[0].updated);
+    removeDupes();
   }
 
   await insertRestaurant(response, Restaurant);
@@ -296,7 +297,6 @@ async function sodaCall(zipcode=false, lastUpdate = false) {
   url += naics;
   url += ` AND license_start_date>'${time.toISOString().slice(0, time.toISOString().length -1)}'`;
   if (zip) url += ` AND zip == '${zip}'`;
-  // url +=limit;
   let response = await fetch(url, newInit);
   let parsedRes = await response.json();
   console.log("return count:", parsedRes.length)
@@ -311,29 +311,18 @@ async function geoEncode(restaurant = false, string = false) {
   let url = await geoApi.replace("SEARCH_STRING", address);
   url = utf8.encode(url);
   url = url.trim();
-  console.log("URL to be encoded:", url);
-  let parsedUrl = querystring.parse(url);
-  console.log("parsed querystring:", parsedUrl);
-  console.log("Trying to get url type:", typeof url);
   let encodedURL = new URL(url);
-  console.log("ENCODED URL:", encodedURL);
-  console.log("HERE'S THE URL TO GEOENCODE:", encodedURL.href);
   let init = {};
   let headers = {
     "async": true,
     "crossDomain": true,
-    // "url": url,
     "method": "GET",
     "Host": "us1.locationiq.com",
-    // "format": "json"
   }
   init.headers = headers;
-  let debugObj = new fetch.Request(encodedURL.href, init);
-  console.log("DEBUGOBJ:", debugObj);
   try {
     let response = await fetch(encodedURL.href, init);
     let output = await response.json();
-    // console.log("this is the output log in geoEncode", output);
     return output;
   } catch(err){
     console.log("this log an error in geoEncode", err);
@@ -362,7 +351,6 @@ async function addLatLong(restaurant, singleResult) {
   restaurant.long = singleResult.lon;
   await restaurant.markModified("long");
   await restaurant.save();
-  // console.log("Return from addLatLong:", restaurant);
   return restaurant;
 }
 
@@ -442,12 +430,6 @@ async function testWrapper() {
   .catch(function(err){
     console.log("I'm an error log in endcodeAll's catch", err);
   });
-  // let query = await dbQuery(Restaurant, {lat: ""});
-  // // console.log("HOPING FOR ZERO UNENCODED ENTRIES:", query);
-  // // await a test of getRestaurantsByDistance();
-  // let allRests = await dbQuery(Restaurant, {});
-  // let sortedRests = await getRestaurantsByDistance(allRests[0]);
-  // console.log("sorted restaurant list:", sortedRests);
 }
 
 //running function
@@ -455,176 +437,3 @@ testWrapper()
 .catch(function(err){
   console.log("I'm an error log in testWapper's catch", err);
 });
-
-
-//TEST CODE BELOW
-
-// async function geoEncode(restaurant = false, string = false) {
-//   let address;
-//   address = (string) ? string : require('querystring').escape(`${restaurant.street_address}, ${restaurant.city_state_zip}, ${restaurant.state}, ${restaurant.zip}`);
-//   let url = await geoApi.replace("SEARCH_STRING", address);
-//   let encodedURL = new URL(url);
-//   let init = {};
-//   let headers = {
-//     "async": true,
-//     "crossDomain": true,
-//     "method": "GET",
-//     "Host": "us1.locationiq.com",
-//   }
-//   init.headers = headers;
-//   try {
-//     let response = await fetch(encodedURL.href, init);
-//     let output = await response.json();
-//     return output;
-//   } catch(err){
-//     console.log("this log an error in geoEncode", err);
-//   }
-// }
-//
-
-
-
-//This function queries restaurants more than a year old to confirm query formatting
-// async function testGetOldRestaurants(){
-//   const newBusinessDate = oldDate();
-//   const allRestaurants = await dbQuery(Restaurant, {license_start_date: { $lte: newBusinessDate }});
-//   allRestaurants.forEach(function(restaurant){
-//     console.log(restaurant);
-//   });
-// }
-// testGetOldRestaurants();
-
-/*
-I'm keeping my homemade filter function for now (below), in case I decide to implement
-a single daily call to the seattle API, then filter and serve requests myself.
-*/
-// async function getData(){
-//   try {
-//     const response = await oHandler.get().query();
-//     const filteredArray = response.filter(item => item.naics_code == '722513' || item.naics_code == '722511');
-//      let timeFilter = filteredArray.filter(function(item){
-//        let startDate = new Date(item.license_start_date);
-//        let now = new Date();
-//        return (now.getTime() - startDate.getTime() < 86400000 * 365) ? true : false;
-//      });
-//     return timeFilter;
-//   } catch(err){
-//     console.log(err);
-//   }
-// }
-
-//testing insertion
-// let sampleDate = new Date("2019-06-01T00:00:00.000");
-// const sampleRest = new Testrestaurant({
-//   business_legal_name:"ABACUS HOSPITALITY LLC",
-//   trade_name:"FRESH TASTE CAFE",
-//   ownership_type:"LLC - Single Member",
-//   naics_code:"722513",
-//   "naics_description":"Limited-Service Restaurants",
-//   license_start_date: sampleDate,
-//   street_address:"700 STEWART ST",
-//   city_state_zip:"SEATTLE",
-//   state:"WA",
-//   zip:"98101",
-//   business_phone:"360-553-3087",
-//   city_account_number:"0008291010752342",
-//   ubi:"603416636"
-// });
-// sampleRest.save(function (err) {
-//   if (err) return handleError(err);
-// });
-
-// //Testing on sample data.
-// //sample data for batch insertion.
-// const sampleDataArray = [
-//   {"business_legal_name":"ABACUS HOSPITALITY LLC","trade_name":"FRESH TASTE CAFE","ownership_type":"LLC - Single Member","naics_code":"722513","naics_description":"Limited-Service Restaurants","license_start_date":"2019-06-01T00:00:00.000","street_address":"700 STEWART ST","city_state_zip":"SEATTLE","state":"WA","zip":"98101","business_phone":"360-553-3087","city_account_number":"0008291010752342","ubi":"603416636"},
-//   {"business_legal_name":"CRAB POT RESTAURANTS INC","trade_name":"THE CRAB POT","ownership_type":"Corporation","naics_code":"722511","naics_description":"Full-Service Restaurants","license_start_date":"2019-01-01T00:00:00.000","street_address":"1301 ALASKAN WAY","city_state_zip":"SEATTLE","state":"WA","zip":"98101","business_phone":"206-623-8600","city_account_number":"0008308990745210","ubi":"6042822600010001"},
-//   {"business_legal_name":"PREMIER MEAT PIES LLC","trade_name":"PREMIER MEAT PIES LLC","ownership_type":"LLC - Multi Member","naics_code":"722513","naics_description":"Limited-Service Restaurants","license_start_date":"2018-11-01T00:00:00.000","street_address":"1001 ALASKAN WAY # 105","city_state_zip":"SEATTLE","state":"WA","zip":"98101","business_phone":"206-619-0499","city_account_number":"0007842320744027","ubi":"603512468"},
-//   {"business_legal_name":"SAI RESTAURANTS ENTERPRISE INC","trade_name":"ZAIKA RESTAURANT AND LOUNGE","ownership_type":"Corporation","naics_code":"722511","naics_description":"Full-Service Restaurants","license_start_date":"2019-09-11T00:00:00.000","street_address":"1100 PIKE ST","city_state_zip":"SEATTLE","state":"WA","zip":"98101","business_phone":"206-499-4949","city_account_number":"0007312120755875","ubi":"6030512120010002"},
-//   {"business_legal_name":"SCHWARTZ BROTHERS RESTAURANTS","trade_name":"DANIELS BROILER DOWNTOWN SEATTLE","ownership_type":"General Partnership","naics_code":"722511","naics_description":"Full-Service Restaurants","license_start_date":"2018-12-01T00:00:00.000","street_address":"808 HOWELL ST #200","city_state_zip":"SEATTLE","state":"WA","zip":"98101","business_phone":"425-455-3948","city_account_number":"0005724290742676","ubi":"6024090030010016"},
-//   {"business_legal_name":"WASHINGTON TAPROOMS LLC","trade_name":"LOCUST CIDER","ownership_type":"LLC - Multi Member","naics_code":"722511","naics_description":"Full-Service Restaurants","license_start_date":"2019-09-12T00:00:00.000","street_address":"1222 POST ALY","city_state_zip":"SEATTLE","state":"WA","zip":"98101","business_phone":"646-783-9267","city_account_number":"0008416520756455","ubi":"6044539810010001"}
-// ];
-//
-// //update the 722513 records to be more than one year old
-// async function makeSomeOld() {
-//   let allRecords = await getSampleOutput(Testrestaurant);
-//   console.log("allRecords:", allRecords);
-//   async function transform(entries) {
-//     entries.forEach(async function(entry) {
-//       if (entry.naics_code === '722513'){
-//         entry.license_start_date.setFullYear(entry.license_start_date.getFullYear() - 1);
-//         await entry.markModified('license_start_date');
-//         await entry.save();
-//       }
-//     })
-//     let changeFiles = await getSampleOutput(Testrestaurant, {naics_code: '722513'});
-//     return changeFiles;
-//     // console.log("MODIFIED FILES:", changeFiles);
-//   }
-//   await transform(allRecords);
-//   let oldRecords = await getSampleOutput(Testrestaurant, {naics_code: '722513'}, "If these have old dates, you win.");
-//   // await removeTestRestaurants();
-//   return oldRecords;
-// }
-//
-// //Write a basic query that returns the contents of testrestaurants
-// async function getSampleOutput(model, query = {}, message = "No message passed") {
-//   console.log("message:", message);
-//   let rawResponse = await model.find(query, function(err, restaurants) {
-//     return restaurants;
-//   });
-//   console.log("response from getSampleOutput", rawResponse);
-//   console.log("Count:", rawResponse.length);
-//   return rawResponse;
-// };
-//
-// //empty testrestaurants
-// async function removeTestRestaurants(){
-//   let response = await Testrestaurant.remove({});
-//   console.log("Records deleted:", response.deletedCount);
-// }
-//
-// //Composite testing function
-// async function runTestCode() {
-//   mongoose.connect('mongodb://localhost/test', {
-//     useNewUrlParser: true,
-//     useUnifiedTopology: true,
-//     useCreateIndex: true
-//   });
-//   await insertRestaurant(sampleDataArray, Testrestaurant);
-//   let oldRecords = await makeSomeOld();
-//   await removeTestRestaurants();
-//   mongoose.connect('mongodb://localhost/restaurants', {
-//     useNewUrlParser: true,
-//     useUnifiedTopology: true,
-//     useCreateIndex: true
-//   });
-//   return oldRecords;
-// }
-
-//run test code
-// runTestCode()
-// .catch(function(err){
-//   console.log("I'm an error log in runTestCode's catch", err);
-// });
-
-// async function proveAPIWorks(){
-//   let url = geoApi.replace("SEARCH_STRING", "Empire%20State%20Building");
-//   console.log("url:", url);
-//   console.log("this log is in proveAPIWorks - typeof url", typeof url);
-//   let init = {};
-//   let headers = {
-//     "async": true,
-//     "crossDomain": true,
-//     "url": url,
-//     "method": "GET"
-//   }
-//   init.headers = headers
-//   try {
-//     let response = await fetch(url, init);
-//     let output = await response.json();
-//     console.log("this is the output log in proveAPIWorks", output);
-//   } catch(err){
-//     console.log("this log an error in proveAPIWorks", err);
-//   }
-// }
