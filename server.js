@@ -38,13 +38,6 @@ dotenv.config();
 const port = process.env.PORT;
 const geoApi = process.env.GEO_API;
 const dbLocation = process.env.DB_LOC;
-const geoHost = process.env.GEO_API_HOST;
-const geoSearch = process.env.GEO_API_SEARCH;
-const geoKey = process.env.GEO_API_KEY;
-const geoFormat = process.env.GEO_API_FORMAT;
-const geoSearchString = process.env.GEO_API_SEARCH_STRING;
-
-
 const { URL } = require('url');
 const utf8 = require('utf8');
 const querystring = require('querystring')
