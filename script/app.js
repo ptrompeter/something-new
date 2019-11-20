@@ -16,10 +16,11 @@ const addDisplay = $("#display-box2");
 let data;
 
 //Cookie functions
-async function handleCookie(searchObj){
-  let siteCookie = (document.cookie.match(/^(?:.*;)?\s*something_new_history\s*=\s*([^;]+)(?:.*)?$/)||[,null])[1];
+function handleCookie(searchObj){
+  let siteCookie = (document.cookie.match(/^(?:.*;)?\s*history\s*=\s*([^;]+)(?:.*)?$/)||[,null])[1];
   let freshJson;
-  let oldJson
+  let oldJson;
+  console.log("site cookie", siteCookie);
   if (siteCookie) {
     let siteCookieArray = siteCookie.split(';');
     oldJson = siteCookieArray[0].slice(siteCookieArray[0].indexOf("=") + 1);
@@ -27,7 +28,9 @@ async function handleCookie(searchObj){
     oldJson = JSON.stringify([]);
   }
   freshJson = updateCookieJson(oldJson, searchObj);
-  return setCookie(freshJson);
+  setCookie(freshJson);
+  console.log(freshJson);
+  return freshJson;
 }
 
 function setCookie(jsonCookie) {
@@ -38,7 +41,7 @@ function setCookie(jsonCookie) {
 }
 
 //Take a JSON string and a new search, return updated json object of unique searches.
-async function updateCookieJson(jsonCookie, searchObj){
+function updateCookieJson(jsonCookie, searchObj){
   let parsedCookieArray = JSON.parse(jsonCookie);
   let counter = 0;
   let duplicateIdx = [];
@@ -148,9 +151,11 @@ zipForm.submit(async function (event) {
 addForm.submit(async function (event) {
   event.preventDefault();
   let values = {}
-$.each($('#address-form').serializeArray(), function(i, field) {
-    values[field.name] = field.value;
-});
+  $.each($('#address-form').serializeArray(), function(i, field) {
+      values[field.name] = field.value;
+  });
+  let searchHistory = handleCookie(values);
+  console.log("search history:", searchHistory);
   let address = `${values["address-text"]}, ${values["city-text"]}, ${values["state-text"]}, ${values["zip-text"]}, ${values["country-text"]}`
   console.log("address:", address);
   data = (address) ? await getList(false, address) : await getList();
