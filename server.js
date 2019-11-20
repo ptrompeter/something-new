@@ -252,6 +252,7 @@ async function removeDupes() {
       await Restaurant.deleteOne({ubi: key});
     }
   }
+  console.log("Dupes hash:", ubiHash);
   return ubiHash;
 }
 
@@ -431,4 +432,4 @@ testWrapper()
   console.log("I'm an error log in testWapper's catch", err);
 });
 
-console.log("Hash of Dupes:", removeDupes());
+removeDupes();
