@@ -15,6 +15,48 @@ const addDisplay = $("#display-box2");
 // const country = $("#country-text");
 let data;
 
+//Cookie functions
+async function handleCookie(searchObj){
+  let siteCookie = (document.cookie.match(/^(?:.*;)?\s*something_new_history\s*=\s*([^;]+)(?:.*)?$/)||[,null])[1];
+  let freshJson;
+  let oldJson
+  if (siteCookie) {
+    let siteCookieArray = siteCookie.split(';');
+    oldJson = siteCookieArray[0].slice(siteCookieArray[0].indexOf("=") + 1);
+  } else {
+    oldJson = JSON.stringify([]);
+  }
+  freshJson = updateCookieJson(oldJson, searchObj);
+  return setCookie(freshJson);
+}
+
+function setCookie(jsonCookie) {
+  let expiry = new Date;
+  expiry.setTime(expiry.getTime() + (30 * 86400000))
+  document.cookie = [`history=${jsonCookie}`, `expires=${expiry.getTime()}`, "path=/"].join(";")
+  return document.cookie;
+}
+
+//Take a JSON string and a new search, return updated json object of unique searches.
+async function updateCookieJson(jsonCookie, searchObj){
+  let parsedCookieArray = JSON.parse(jsonCookie);
+  let counter = 0;
+  let duplicateIdx = [];
+  parsedCookieArray.forEach(function(item, idx){
+    counter = 0;
+    for (let [key, value] of Object.entries(searchObj)) {
+      if (item[key] === value) counter++;
+    }
+    if (counter === 5) {
+      duplicateIdx.unshift(idx)
+    }
+  });
+  duplicateIdx.forEach(function(item){
+    parsedCookieArray.splice(item);
+  });
+  parsedCookieArray.unshift(searchObj);
+  return JSON.stringify(parsedCookieArray);
+}
 
 //handler functions
 async function getList(zip = false, address = false) {
